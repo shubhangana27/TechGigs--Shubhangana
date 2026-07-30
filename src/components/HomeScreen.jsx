@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import './Login.css';
+import './HomeScreen.css';
 
 export default function Login({ onNavigate, setUser }) {
   const [activeTab, setActiveTab] = useState('student'); // 'student' or 'admin'
