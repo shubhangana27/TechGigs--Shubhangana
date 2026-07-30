@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
-import Login from './components/Login';
-
-// Placeholder views
-const StudentPortal = () => <h2>Student Portal</h2>;
-const AdminPortal = () => <h2>Admin Portal</h2>;
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import HomeScreen from './components/HomeScreen';
+import StudentPortal from './components/StudentPortal';
+import AdminPortal from './components/AdminPortal';
 
 export default function App() {
-  // Store the current page state ('login', 'student-portal', or 'admin-portal')
-  const [currentPage, setCurrentPage] = useState('login');
-
   return (
-    <div>
-      {currentPage === 'login' && (
-        <Login onNavigate={(page) => setCurrentPage(page)} />
-      )}
-      {currentPage === 'student-portal' && <StudentPortal />}
-      {currentPage === 'admin-portal' && <AdminPortal />}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomeScreen />} />
+        <Route path="/student-portal" element={<StudentPortal />} />
+        <Route path="/admin-portal" element={<AdminPortal />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
