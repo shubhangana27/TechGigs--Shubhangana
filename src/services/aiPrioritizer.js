@@ -45,10 +45,6 @@ STRICT EVALUATION RULES:
             type: "STRING",
             description: "One of: Critical, High, Medium, Low, Very Low"
           },
-          aiReasoning: {
-            type: "STRING",
-            description: "Brief 1-sentence justification for the score"
-          }
         },
         required: ["urgencyScore", "urgencyLabel", "aiReasoning"]
       }
