@@ -120,22 +120,22 @@ html, body {
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
-  table-layout: fixed; /* Ensures table fits exact container width */
+  table-layout: fixed;
 }
 
 .admin-table th {
   background-color: #0f172a;
   color: #f8fafc;
-  padding: 10px 10px;
+  padding: 10px 8px;
   font-weight: 600;
   letter-spacing: 0.01em;
   word-wrap: break-word;
 }
 
 .admin-table td {
-  padding: 10px 10px;
+  padding: 10px 8px;
   border-bottom: 1px solid #e2e8f0;
-  vertical-align: top;
+  vertical-align: middle;
   color: #334155;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -263,10 +263,10 @@ html, body {
   border: 1px solid #6ee7b7;
 }
 
-/* Status Select Dropdown */
+/* Status Select Dropdown - Multi-line Text Wrapping Allowed */
 .status-select {
   width: 100%;
-  padding: 5px 6px;
+  padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid #cbd5e1;
   font-size: 0.78rem;
@@ -274,6 +274,12 @@ html, body {
   cursor: pointer;
   outline: none;
   box-sizing: border-box;
+
+  /* ALLOW MULTI-LINE TEXT WRAPPING */
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  line-height: 1.25;
+  text-align: left;
 }
 
 .status-select.unresolved {

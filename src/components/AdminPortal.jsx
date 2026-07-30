@@ -242,15 +242,15 @@ export default function AdminPortal({ adminUser, onLogout }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th style={{ width: '10%' }}>Priority / ID</th>
-              <th style={{ width: '10%' }}>Filed Date</th>
-              <th style={{ width: '11%' }}>Location</th>
-              <th style={{ width: '12%' }}>Student Info</th>
-              <th style={{ width: '25%' }}>Category & Description</th>
+              <th style={{ width: '9%' }}>Priority / ID</th>
+              <th style={{ width: '9%' }}>Filed Date</th>
+              <th style={{ width: '10%' }}>Location</th>
+              <th style={{ width: '11%' }}>Student Info</th>
+              <th style={{ width: '22%' }}>Category & Description</th>
               <th style={{ width: '12%' }}>Visit Schedule</th>
-              <th style={{ width: '10%' }}>Remarks</th>
-              <th style={{ width: '10%' }}>SLA</th>
-              <th style={{ width: '10%' }}>Status Action</th>
+              <th style={{ width: '11%' }}>Remarks</th>
+              <th style={{ width: '9%' }}>SLA</th>
+              <th style={{ width: '14%' }}>Status Action</th>
             </tr>
           </thead>
           <tbody>
