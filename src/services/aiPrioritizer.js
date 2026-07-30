@@ -1,11 +1,17 @@
-/**
- * Evaluates a complaint description using standard HTTP fetch (Zero NPM dependencies).
- */
 export async function evaluateTicketUrgency(category, description) {
   const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
-  // Use Gemini REST endpoint directly
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+  if (!API_KEY) {
+    console.warn('REACT_APP_GEMINI_API_KEY is missing!');
+    return {
+      urgencyScore: 3,
+      urgencyLabel: 'Medium',
+      aiReasoning: 'API Key missing in environment'
+    };
+  }
+
+  // Use gemini-1.5-flash
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
   const prompt = `You are a campus maintenance supervisor. Analyze the following complaint and assign an urgency level from 1 (Lowest) to 5 (Critical Emergency).
 
@@ -13,8 +19,8 @@ Category: ${category}
 Description: ${description}
 
 Urgency Rules:
-- Score 5 (Critical): Immediate health/safety hazards, active water flooding near electronics, total power outages, fire hazards.
-- Score 4 (High): Sparks, leaking pipes, lockouts, no water supply.
+- Score 5 (Critical): Immediate health/safety hazards, sparks, fire hazards, active water flooding near electronics, total power outages.
+- Score 4 (High): Leaking pipes, lockouts, no water supply.
 - Score 3 (Medium): Broken furniture, minor plumbing leaks, broken study light.
 - Score 2 (Low): Slow internet, minor scratches, non-essential repairs.
 - Score 1 (Very Low): Cosmetic complaints, routine general feedback.`;
@@ -56,18 +62,17 @@ Urgency Rules:
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API HTTP Error: ${response.status}`);
+      const errText = await response.text();
+      console.error('Gemini API Error details:', errText);
+      throw new Error(`HTTP ${response.status}: ${errText}`);
     }
 
     const data = await response.json();
-    
-    // Extract JSON response string parsed by Gemini
     const textOutput = data.candidates[0].content.parts[0].text;
     return JSON.parse(textOutput);
 
   } catch (error) {
     console.error('Gemini REST API error:', error);
-    // Safe fallback if network drops or request fails
     return {
       urgencyScore: 3,
       urgencyLabel: 'Medium',
