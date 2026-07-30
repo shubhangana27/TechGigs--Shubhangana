@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import { evaluateTicketUrgency } from '../services/aiPrioritizer';
 import './StudentPortal.css';
 
 const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93';
@@ -87,6 +88,9 @@ export default function StudentPortal({ user, onLogout }) {
         photoUrl = await uploadToImgBB(file);
       }
 
+      // Evaluate complaint urgency with Gemini AI
+      const aiAssessment = await evaluateTicketUrgency(category, description);
+
       const ticketId = `TICK-${Math.floor(100000 + Math.random() * 900000)}`;
       const slaHours = CATEGORY_SLA[category] || 24;
       const dueDate = new Date();
@@ -110,7 +114,12 @@ export default function StudentPortal({ user, onLogout }) {
         proposedVisitTime: null,
         adminRemarks: ['New ticket filed by student.'],
         isEscalated: false,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+
+        // AI Categorization & Prioritization Data
+        urgencyScore: aiAssessment.urgencyScore, // 1 to 5
+        urgencyLabel: aiAssessment.urgencyLabel, // e.g., "Critical", "High", "Medium"
+        aiReasoning: aiAssessment.aiReasoning    // Justification snippet from Gemini
       });
 
       alert(`Grievance submitted successfully! Sent to Admin. Ticket ID: ${ticketId}`);
@@ -311,7 +320,7 @@ export default function StudentPortal({ user, onLogout }) {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Uploading & Submitting...' : 'Submit Complaint'}
+              {loading ? 'Analyzing with AI & Submitting...' : 'Submit Complaint'}
             </button>
           </form>
         </div>
@@ -328,6 +337,22 @@ export default function StudentPortal({ user, onLogout }) {
                     <div>
                       <span className="ticket-id">{t.ticketId}</span>
                       <span className="ticket-category">{t.category}</span>
+                      {t.urgencyScore && (
+                        <span 
+                          style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            display: 'inline-block',
+                            backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
+                            color: t.urgencyScore >= 4 ? '#c62828' : t.urgencyScore === 3 ? '#e65100' : '#2e7d32'
+                          }}
+                        >
+                          🤖 Urgency: {t.urgencyLabel || `Level ${t.urgencyScore}`}
+                        </span>
+                      )}
                     </div>
                     {renderStatusBadge(t)}
                   </div>
