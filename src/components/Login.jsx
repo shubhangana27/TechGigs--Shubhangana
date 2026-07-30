@@ -4,8 +4,8 @@ import { db } from '../firebase';
 import './HomeScreen.css';
 
 export default function Login({ onNavigate, setUser }) {
-  const [activeTab, setActiveTab] = useState('student'); // 'student' or 'admin'
-  const [idInput, setIdInput] = useState(''); // Reg No or Admin ID
+  const [activeTab, setActiveTab] = useState('student');
+  const [idInput, setIdInput] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,12 +17,9 @@ export default function Login({ onNavigate, setUser }) {
 
     try {
       const cleanId = idInput.trim();
-      
-      // Determine collection name and search field based on active tab
       const collectionName = activeTab === 'student' ? 'users' : 'admins';
       const searchField = activeTab === 'student' ? 'registrationNumber' : 'adminId';
 
-      // 1. Query root-level collection directly using collection()
       const q = query(
         collection(db, collectionName),
         where(searchField, '==', cleanId)
@@ -30,28 +27,22 @@ export default function Login({ onNavigate, setUser }) {
 
       const querySnapshot = await getDocs(q);
 
-      // Check if user exists in Firestore
       if (querySnapshot.empty) {
         setError(`No ${activeTab} account found with ID "${cleanId}".`);
         setLoading(false);
         return;
       }
 
-      // Extract user document
       const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data();
-
-      // Determine role (use document field if it exists, otherwise fallback to current tab)
       const userRole = userData.role || activeTab;
 
-      // 2. Direct password check against Firestore document
       if (userData.password !== password) {
         setError('Incorrect password. Please try again.');
         setLoading(false);
         return;
       }
 
-      // 3. Login success -> Save user data and switch page
       const loggedUser = { id: userDoc.id, ...userData, role: userRole };
 
       if (setUser) setUser(loggedUser);
@@ -73,9 +64,16 @@ export default function Login({ onNavigate, setUser }) {
 
   return (
     <div className="home-container">
+      {/* 1. Header (Above the Card) */}
+      <div className="page-header">
+        <h1>Welcome to V-Help</h1>
+        <p className="subtitle">Hostel Grievance Portal</p>
+      </div>
+
+      {/* 2. Main Login Box */}
       <div className="auth-card">
-        <h2>Campus Grievance Tracker</h2>
-        <p className="subtitle">Select your portal to log in</p>
+        {/* Instruction centered at top of box */}
+        <p className="centered-instruction">Select your portal to log in</p>
 
         {/* Tab Selection */}
         <div className="tab-group">
@@ -95,7 +93,7 @@ export default function Login({ onNavigate, setUser }) {
           </button>
         </div>
 
-        {/* Login Form */}
+        {/* Form */}
         <form onSubmit={handleLogin}>
           {error && <div className="error-message">{error}</div>}
 
