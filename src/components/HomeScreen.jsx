@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import './HomeScreen.css';
-import logoImg from './images.jpg';
+import logoImg from '../images.jpg';
 
 export default function Login({ onNavigate, setUser }) {
   const [activeTab, setActiveTab] = useState('student');
