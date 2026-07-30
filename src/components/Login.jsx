@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import './Login.css';
 
@@ -17,15 +17,12 @@ export default function Login({ onNavigate, setUser }) {
 
     try {
       const cleanId = idInput.trim();
-      const usersRef = collection(db, 'users');
-
-      // 1. Query Firestore based on role & ID type
       const searchField = activeTab === 'student' ? 'registrationNumber' : 'adminId';
-      
+
+      // 1. Query all subcollections named 'users' using collectionGroup
       const q = query(
-        usersRef,
-        where(searchField, '==', cleanId),
-        where('role', '==', activeTab)
+        collectionGroup(db, 'users'),
+        where(searchField, '==', cleanId)
       );
 
       const querySnapshot = await getDocs(q);
@@ -41,6 +38,9 @@ export default function Login({ onNavigate, setUser }) {
       const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data();
 
+      // Determine role (use document field if it exists, otherwise fallback to current tab)
+      const userRole = userData.role || activeTab;
+
       // 2. Direct password check against Firestore document
       if (userData.password !== password) {
         setError('Incorrect password. Please try again.');
@@ -49,12 +49,12 @@ export default function Login({ onNavigate, setUser }) {
       }
 
       // 3. Login success -> Save user data and switch page
-      const loggedUser = { id: userDoc.id, ...userData };
-      
+      const loggedUser = { id: userDoc.id, ...userData, role: userRole };
+
       if (setUser) setUser(loggedUser);
       localStorage.setItem('currentUser', JSON.stringify(loggedUser));
 
-      if (userData.role === 'student') {
+      if (userRole === 'student') {
         onNavigate('student-portal');
       } else {
         onNavigate('admin-portal');
@@ -62,7 +62,7 @@ export default function Login({ onNavigate, setUser }) {
 
     } catch (err) {
       console.error('Login Error:', err);
-      setError('System error. Please check your Firestore rules/connection.');
+      setError('System error. Please check your Firestore rules or internet connection.');
     } finally {
       setLoading(false);
     }
