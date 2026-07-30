@@ -10,20 +10,20 @@ export async function evaluateTicketUrgency(category, description) {
     };
   }
 
-  // Use gemini-1.5-flash
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-  const prompt = `You are a campus maintenance supervisor. Analyze the following complaint and assign an urgency level from 1 (Lowest) to 5 (Critical Emergency).
+  const prompt = `You are a strict campus maintenance and emergency dispatch supervisor. 
+Evaluate the urgency of the following student complaint on a scale from 1 (Lowest) to 5 (Critical Emergency).
 
 Category: ${category}
 Description: ${description}
 
-Urgency Rules:
-- Score 5 (Critical): Immediate health/safety hazards, sparks, fire hazards, active water flooding near electronics, total power outages.
-- Score 4 (High): Leaking pipes, lockouts, no water supply.
-- Score 3 (Medium): Broken furniture, minor plumbing leaks, broken study light.
-- Score 2 (Low): Slow internet, minor scratches, non-essential repairs.
-- Score 1 (Very Low): Cosmetic complaints, routine general feedback.`;
+STRICT EVALUATION RULES:
+- Score 5 (Critical): ANY mention of sparks, smoke, fire, burning smells, active electrical short circuits, gas leaks, or major flooding near outlets. Output urgencyLabel as "Critical".
+- Score 4 (High): Leaking pipes, door lockouts, total loss of power in room without sparks/smoke, no running water. Output urgencyLabel as "High".
+- Score 3 (Medium): Broken study lamp, fan speed issue, minor tap dripping, broken chair/furniture. Output urgencyLabel as "Medium".
+- Score 2 (Low): Slow internet, minor scratches on desk, dirty mirror, non-urgent routine maintenance. Output urgencyLabel as "Low".
+- Score 1 (Very Low): General cosmetic feedback or non-essential requests. Output urgencyLabel as "Very Low".`;
 
   const payload = {
     contents: [

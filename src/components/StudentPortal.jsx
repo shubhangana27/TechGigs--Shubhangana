@@ -117,9 +117,9 @@ export default function StudentPortal({ user, onLogout }) {
         createdAt: serverTimestamp(),
 
         // AI Categorization & Prioritization Data
-        urgencyScore: aiAssessment.urgencyScore, // 1 to 5
-        urgencyLabel: aiAssessment.urgencyLabel, // e.g., "Critical", "High", "Medium"
-        aiReasoning: aiAssessment.aiReasoning    // Justification snippet from Gemini
+        urgencyScore: aiAssessment.urgencyScore, 
+        urgencyLabel: aiAssessment.urgencyLabel, 
+        aiReasoning: aiAssessment.aiReasoning    
       });
 
       alert(`Grievance submitted successfully! Sent to Admin. Ticket ID: ${ticketId}`);
@@ -331,13 +331,18 @@ export default function StudentPortal({ user, onLogout }) {
             <p className="no-data">No complaints submitted yet.</p>
           ) : (
             <div className="ticket-list">
-              {tickets.map((t) => (
-                <div key={t.id} className="ticket-item">
-                  <div className="ticket-header">
-                    <div>
-                      <span className="ticket-id">{t.ticketId}</span>
-                      <span className="ticket-category">{t.category}</span>
-                      {t.urgencyScore && (
+              {tickets.map((t) => {
+                const score = t.urgencyScore || 3;
+                const label = t.urgencyLabel || (score >= 4 ? 'Critical' : score === 3 ? 'Medium' : 'Low');
+                
+                return (
+                  <div key={t.id} className="ticket-item">
+                    <div className="ticket-header">
+                      <div>
+                        <span className="ticket-id">{t.ticketId}</span>
+                        <span className="ticket-category">{t.category}</span>
+                        
+                        {/* Dynamic AI Badge Rendering */}
                         <span 
                           style={{
                             marginLeft: '8px',
@@ -346,60 +351,61 @@ export default function StudentPortal({ user, onLogout }) {
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
                             display: 'inline-block',
-                            backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
-                            color: t.urgencyScore >= 4 ? '#c62828' : t.urgencyScore === 3 ? '#e65100' : '#2e7d32'
+                            backgroundColor: score >= 4 ? '#ffebee' : score === 3 ? '#fff3e0' : '#e8f5e9',
+                            color: score >= 4 ? '#c62828' : score === 3 ? '#e65100' : '#2e7d32',
+                            border: `1px solid ${score >= 4 ? '#ef5350' : score === 3 ? '#ffb74d' : '#81c784'}`
                           }}
                         >
-                          🤖 Urgency: {t.urgencyLabel || `Level ${t.urgencyScore}`}
+                          🤖 Urgency: {label} ({score}/5)
                         </span>
-                      )}
+                      </div>
+                      {renderStatusBadge(t)}
                     </div>
-                    {renderStatusBadge(t)}
-                  </div>
-                  <p className="ticket-desc">{t.description}</p>
-                  
-                  {/* Visit Time Detail Panel */}
-                  <div className="schedule-panel">
-                    <strong>Scheduled Visit Time: </strong> 
-                    <span>{formatDisplayTime(t.proposedVisitTime)}</span>
-                  </div>
+                    <p className="ticket-desc">{t.description}</p>
+                    
+                    {/* Visit Time Detail Panel */}
+                    <div className="schedule-panel">
+                      <strong>Scheduled Visit Time: </strong> 
+                      <span>{formatDisplayTime(t.proposedVisitTime)}</span>
+                    </div>
 
-                  {/* Student Decision Section */}
-                  {t.status === 'Pending Student Confirmation' && (
-                    <div className="action-panel">
-                      <p>⚠️ Admin proposed a visit schedule. Please confirm or request an alternate time:</p>
-                      <button className="confirm-btn" onClick={() => handleAcceptTime(t.id)}>
-                        ✓ Accept Proposed Time
-                      </button>
-                      <button className="modify-btn" onClick={() => setSelectedTicket(t)}>
-                        ✏️ Modify Time
-                      </button>
-                    </div>
-                  )}
+                    {/* Student Decision Section */}
+                    {t.status === 'Pending Student Confirmation' && (
+                      <div className="action-panel">
+                        <p>⚠️ Admin proposed a visit schedule. Please confirm or request an alternate time:</p>
+                        <button className="confirm-btn" onClick={() => handleAcceptTime(t.id)}>
+                          ✓ Accept Proposed Time
+                        </button>
+                        <button className="modify-btn" onClick={() => setSelectedTicket(t)}>
+                          ✏️ Modify Time
+                        </button>
+                      </div>
+                    )}
 
-                  {/* Audit Remarks Log */}
-                  {t.adminRemarks && t.adminRemarks.length > 0 && (
-                    <div className="remarks-log">
-                      <small><strong>Activity Log:</strong></small>
-                      <ul>
-                        {t.adminRemarks.map((remark, idx) => (
-                          <li key={idx}><small>{remark}</small></li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    {/* Audit Remarks Log */}
+                    {t.adminRemarks && t.adminRemarks.length > 0 && (
+                      <div className="remarks-log">
+                        <small><strong>Activity Log:</strong></small>
+                        <ul>
+                          {t.adminRemarks.map((remark, idx) => (
+                            <li key={idx}><small>{remark}</small></li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                  <div className="ticket-meta">
-                    <span>📍 {t.gender ? `${t.gender}'s` : ''} {t.hostelBlock}, Wing {t.wing}, Room {t.roomNumber}</span>
-                    <span>🕒 Filed: {formatDateTime(t.createdAt)}</span>
+                    <div className="ticket-meta">
+                      <span>📍 {t.gender ? `${t.gender}'s` : ''} {t.hostelBlock}, Wing {t.wing}, Room {t.roomNumber}</span>
+                      <span>🕒 Filed: {formatDateTime(t.createdAt)}</span>
+                    </div>
+                    {t.photoUrl && (
+                      <div className="ticket-image-container">
+                        <a href={t.photoUrl} target="_blank" rel="noreferrer">🖼️ View Photo Proof</a>
+                      </div>
+                    )}
                   </div>
-                  {t.photoUrl && (
-                    <div className="ticket-image-container">
-                      <a href={t.photoUrl} target="_blank" rel="noreferrer">🖼️ View Photo Proof</a>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
