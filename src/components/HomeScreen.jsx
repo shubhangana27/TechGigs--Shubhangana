@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { auth, db } from '../firebase';
-import './HomeScreen.css';
+import { db } from '../firebase';
+import './Login.css';
 
-export default function HomeScreen() {
+export default function Login({ onNavigate, setUser }) {
   const [activeTab, setActiveTab] = useState('student'); // 'student' or 'admin'
-  const [idInput, setIdInput] = useState(''); // Registration Number or Admin ID
+  const [idInput, setIdInput] = useState(''); // Reg No or Admin ID
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,61 +17,52 @@ export default function HomeScreen() {
 
     try {
       const cleanId = idInput.trim();
-
-      // 1. Check if user exists in Firestore first
       const usersRef = collection(db, 'users');
-      const fieldToSearch = activeTab === 'student' ? 'registrationNumber' : 'adminId';
 
+      // 1. Query Firestore based on role & ID type
+      const searchField = activeTab === 'student' ? 'registrationNumber' : 'adminId';
+      
       const q = query(
         usersRef,
-        where(fieldToSearch, '==', cleanId),
+        where(searchField, '==', cleanId),
         where('role', '==', activeTab)
       );
 
       const querySnapshot = await getDocs(q);
 
-      // Block access if user is not in Firestore database
+      // Check if user exists in Firestore
       if (querySnapshot.empty) {
-        setError(`Access Denied: No registered ${activeTab} found with ID "${cleanId}".`);
+        setError(`No ${activeTab} account found with ID "${cleanId}".`);
         setLoading(false);
         return;
       }
 
-      // Extract matching user data
+      // Extract user document
       const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data();
 
-      // 2. Authenticate with Firebase Auth using user's Firestore email & typed password
-      const userCredential = await signInWithEmailAndPassword(auth, userData.email, password);
+      // 2. Direct password check against Firestore document
+      if (userData.password !== password) {
+        setError('Incorrect password. Please try again.');
+        setLoading(false);
+        return;
+      }
 
-      // 3. Store active session data in localStorage
-      localStorage.setItem(
-        'currentUser',
-        JSON.stringify({
-          uid: userCredential.user.uid,
-          docId: userDoc.id,
-          name: userData.name,
-          registrationNumber: userData.registrationNumber || null,
-          adminId: userData.adminId || null,
-          role: userData.role,
-          email: userData.email,
-        })
-      );
+      // 3. Login success -> Save user data and switch page
+      const loggedUser = { id: userDoc.id, ...userData };
+      
+      if (setUser) setUser(loggedUser);
+      localStorage.setItem('currentUser', JSON.stringify(loggedUser));
 
-      // 4. Navigate to corresponding portal
       if (userData.role === 'student') {
-        navigate('/student-portal');
-      } else if (userData.role === 'admin') {
-        navigate('/admin-portal');
+        onNavigate('student-portal');
+      } else {
+        onNavigate('admin-portal');
       }
 
     } catch (err) {
       console.error('Login Error:', err);
-      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Incorrect password. Please try again.');
-      } else {
-        setError('Login failed. Please check your credentials.');
-      }
+      setError('System error. Please check your Firestore rules/connection.');
     } finally {
       setLoading(false);
     }
@@ -84,28 +71,22 @@ export default function HomeScreen() {
   return (
     <div className="home-container">
       <div className="auth-card">
-        <h2>Campus Grievance Portal</h2>
-        <p className="subtitle">Maintenance & Redressal Tracking System</p>
+        <h2>Campus Grievance Tracker</h2>
+        <p className="subtitle">Select your portal to log in</p>
 
-        {/* Role Selection Tabs */}
+        {/* Tab Selection */}
         <div className="tab-group">
           <button
             type="button"
             className={`tab-btn ${activeTab === 'student' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('student');
-              setError('');
-            }}
+            onClick={() => { setActiveTab('student'); setError(''); }}
           >
             Student Login
           </button>
           <button
             type="button"
             className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('admin');
-              setError('');
-            }}
+            onClick={() => { setActiveTab('admin'); setError(''); }}
           >
             Admin Login
           </button>
@@ -133,16 +114,14 @@ export default function HomeScreen() {
             <input
               type="password"
               required
-              placeholder="Enter your password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
           <button type="submit" className="submit-btn" disabled={loading}>
-            {loading
-              ? 'Verifying...'
-              : `Login as ${activeTab === 'student' ? 'Student' : 'Admin'}`}
+            {loading ? 'Logging in...' : `Login as ${activeTab === 'student' ? 'Student' : 'Admin'}`}
           </button>
         </form>
       </div>

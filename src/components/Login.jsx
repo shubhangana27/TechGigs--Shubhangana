@@ -1,77 +1,111 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import '../styles/Auth.css';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import './Login.css';
 
-export default function Login({ onNavigate }) {
-  const [role, setRole] = useState('student');
-  const [identifier, setIdentifier] = useState('');
+export default function Login({ onNavigate, setUser }) {
+  const [activeTab, setActiveTab] = useState('student'); // 'student' or 'admin'
+  const [idInput, setIdInput] = useState(''); // Reg No or Admin ID
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-
-    const formattedEmail = 
-      role === 'student'
-        ? `${identifier.trim().toLowerCase()}@student.vitbhopal.ac.in`
-        : `${identifier.trim().toLowerCase()}@admin.vitbhopal.ac.in`;
+    setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, formattedEmail, password);
+      const cleanId = idInput.trim();
+      const usersRef = collection(db, 'users');
+
+      // 1. Query Firestore based on role & ID type
+      const searchField = activeTab === 'student' ? 'registrationNumber' : 'adminId';
       
-      // Navigate to portal based on role state passing down from App
-      if (role === 'student') {
+      const q = query(
+        usersRef,
+        where(searchField, '==', cleanId),
+        where('role', '==', activeTab)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      // Check if user exists in Firestore
+      if (querySnapshot.empty) {
+        setError(`No ${activeTab} account found with ID "${cleanId}".`);
+        setLoading(false);
+        return;
+      }
+
+      // Extract user document
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+
+      // 2. Direct password check against Firestore document
+      if (userData.password !== password) {
+        setError('Incorrect password. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Login success -> Save user data and switch page
+      const loggedUser = { id: userDoc.id, ...userData };
+      
+      if (setUser) setUser(loggedUser);
+      localStorage.setItem('currentUser', JSON.stringify(loggedUser));
+
+      if (userData.role === 'student') {
         onNavigate('student-portal');
       } else {
         onNavigate('admin-portal');
       }
+
     } catch (err) {
-      setError('Invalid credentials. Please check your details and try again.');
+      console.error('Login Error:', err);
+      setError('System error. Please check your Firestore rules/connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
- 
-
   return (
-    <div className="auth-container">
+    <div className="home-container">
       <div className="auth-card">
-        <div className="auth-header">
-          <h1>Campus Grievance Tracker</h1>
-          <p>Select your portal to log in</p>
-        </div>
+        <h2>Campus Grievance Tracker</h2>
+        <p className="subtitle">Select your portal to log in</p>
 
-        {/* Role Toggle Switch */}
-        <div className="tab-container">
+        {/* Tab Selection */}
+        <div className="tab-group">
           <button
-            className={`tab-btn ${role === 'student' ? 'active' : ''}`}
-            onClick={() => { setRole('student'); setError(''); }}
+            type="button"
+            className={`tab-btn ${activeTab === 'student' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('student'); setError(''); }}
           >
             Student Login
           </button>
           <button
-            className={`tab-btn ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => { setRole('admin'); setError(''); }}
+            type="button"
+            className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('admin'); setError(''); }}
           >
             Admin Login
           </button>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-
         {/* Login Form */}
         <form onSubmit={handleLogin}>
+          {error && <div className="error-message">{error}</div>}
+
           <div className="form-group">
             <label>
-              {role === 'student' ? 'Registration Number' : 'Admin ID'}
+              {activeTab === 'student' ? 'Registration Number' : 'Admin ID'}
             </label>
             <input
               type="text"
-              placeholder={role === 'student' ? 'e.g. 21BCE1024' : 'e.g. ADM101'}
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
               required
+              placeholder={activeTab === 'student' ? 'e.g. 24BAI10038' : 'e.g. ADMIN101'}
+              value={idInput}
+              onChange={(e) => setIdInput(e.target.value)}
             />
           </div>
 
@@ -79,15 +113,15 @@ export default function Login({ onNavigate }) {
             <label>Password</label>
             <input
               type="password"
-              placeholder="Enter your password"
+              required
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 
-          <button type="submit" className="submit-btn">
-            Login as {role === 'student' ? 'Student' : 'Admin'}
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? 'Logging in...' : `Login as ${activeTab === 'student' ? 'Student' : 'Admin'}`}
           </button>
         </form>
       </div>
