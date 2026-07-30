@@ -208,24 +208,39 @@
   font-size: 0.85rem;
   text-align: left;
 }
-/* Page Header & Logo Styling */
+/* Inline Header Layout */
 .page-header {
-  text-align: center;
-  margin-bottom: 2rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 1.25rem; /* Space between logo and title */
+  margin-bottom: 2rem;
+  text-align: left;
 }
 
 .brand-logo {
-  width: 75px;
-  height: 75px;
-  object-fit: contain; /* Prevents stretching */
-  border-radius: 12px; /* Subtle rounded corners instead of 50% circle if it's rectangular */
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
   background: #ffffff;
+  border-radius: 12px;
   padding: 6px;
-  margin-bottom: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--header-title);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.page-header .subtitle {
+  font-size: 1rem;
+  color: var(--header-subtitle);
+  margin-top: 0.25rem;
 }
 
 .brand-logo:hover {
