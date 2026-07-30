@@ -104,7 +104,8 @@ export default function Login({ onNavigate, setUser }) {
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label>
+            {/* Added inline style to guarantee pure white text color */}
+            <label style={{ color: '#ffffff', fontWeight: 600 }}>
               {activeTab === 'student' ? 'Registration Number' : 'Admin ID'}
             </label>
             <input
@@ -117,7 +118,8 @@ export default function Login({ onNavigate, setUser }) {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            {/* Added inline style to guarantee pure white text color */}
+            <label style={{ color: '#ffffff', fontWeight: 600 }}>Password</label>
             <input
               type="password"
               required
