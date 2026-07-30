@@ -138,6 +138,7 @@ html, body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  color:#0000;
 }
 
 @media (max-width: 520px) {
