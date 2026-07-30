@@ -10,7 +10,8 @@ export async function evaluateTicketUrgency(category, description) {
     };
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+  // Updated to gemini-2.5-flash model endpoint
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
   const prompt = `You are a strict campus maintenance and emergency dispatch supervisor. 
 Evaluate the urgency of the following student complaint on a scale from 1 (Lowest) to 5 (Critical Emergency).
@@ -79,5 +80,4 @@ STRICT EVALUATION RULES:
       aiReasoning: 'Default fallback (AI network request failed)'
     };
   }
-  
 }
