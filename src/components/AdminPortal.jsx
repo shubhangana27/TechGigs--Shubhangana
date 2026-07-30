@@ -12,24 +12,47 @@ export default function AdminPortal({ adminUser, onLogout }) {
   // Real-time listener for all tickets
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'tickets'), (snapshot) => {
+      const now = new Date();
+
       const fetched = snapshot.docs.map((d) => {
         const data = d.data();
-        const now = new Date();
         const due = new Date(data.dueDate);
-        const isBreached = data.status !== 'Resolved' && due < now;
+        const diffMs = due - now;
+
+        const isBreached = data.status !== 'Resolved' && diffMs <= 0;
+        const isUrgent = data.status !== 'Resolved' && diffMs > 0 && diffMs <= 2 * 60 * 60 * 1000;
 
         return {
           id: d.id,
           ...data,
-          isEscalated: isBreached || data.isEscalated
+          isEscalated: isBreached || data.isEscalated,
+          isUrgent
         };
       });
 
-      // Sort: Escalated & unresolved first, then newest
+      // Strict Escalation Sorting Logic
       fetched.sort((a, b) => {
+        const aIsResolved = a.status === 'Resolved';
+        const bIsResolved = b.status === 'Resolved';
+
+        if (!aIsResolved && bIsResolved) return -1;
+        if (aIsResolved && !bIsResolved) return 1;
+
+        if (aIsResolved && bIsResolved) {
+          const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+          const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+          return dateB - dateA;
+        }
+
         if (a.isEscalated && !b.isEscalated) return -1;
         if (!a.isEscalated && b.isEscalated) return 1;
-        return new Date(b.createdAt?.toDate ? b.createdAt.toDate() : 0) - new Date(a.createdAt?.toDate ? a.createdAt.toDate() : 0);
+
+        if (a.isUrgent && !b.isUrgent) return -1;
+        if (!a.isUrgent && b.isUrgent) return 1;
+
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+        return dateA - dateB;
       });
 
       setTickets(fetched);
@@ -38,7 +61,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
     return () => unsubscribe();
   }, []);
 
-  // Update ticket status in Firestore
   const handleStatusChange = async (ticketDocId, newStatus) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketDocId);
@@ -49,8 +71,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
     }
   };
 
-  // Compute live SLA indicator
-  const renderSLA = (dueDateStr, status) => {
+  const renderSLA = (dueDateStr, status, isEscalated, isUrgent) => {
     if (status === 'Resolved') {
       return <span className="badge badge-success">Closed</span>;
     }
@@ -59,16 +80,35 @@ export default function AdminPortal({ adminUser, onLogout }) {
     const due = new Date(dueDateStr);
     const diffMs = due - now;
 
-    if (diffMs <= 0) {
-      return <span className="badge badge-escalated">⚠️ ESCALATED (SLA Breached)</span>;
+    if (diffMs <= 0 || isEscalated) {
+      return <span className="badge badge-escalated">🔴 ESCALATED (SLA Breached)</span>;
     }
 
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (isUrgent) {
+      return <span className="badge badge-urgent">⚠️ Urgent: {hours}h {mins}m remaining</span>;
+    }
+
     return <span className="badge badge-active">⏱️ {hours}h {mins}m remaining</span>;
   };
 
-  // Filter queue items (includes Block, Wing, Room, Name, Reg No, and ID in search)
+  // Helper function to render Date + Time
+  const renderSubmissionTime = (timestamp) => {
+    if (!timestamp?.toDate) return 'N/A';
+    const dateObj = timestamp.toDate();
+    return (
+      <div>
+        <strong>{dateObj.toLocaleDateString()}</strong>
+        <br />
+        <small className="text-muted">
+          🕒 {dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </small>
+      </div>
+    );
+  };
+
   const filteredTickets = tickets.filter((t) => {
     const matchCategory = categoryFilter === 'All' || t.category === categoryFilter;
     const matchStatus = statusFilter === 'All' || 
@@ -78,6 +118,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
     const matchSearch = (t.ticketId || '').toLowerCase().includes(searchLower) ||
                         (t.studentRegistration || '').toLowerCase().includes(searchLower) ||
                         (t.studentName || '').toLowerCase().includes(searchLower) ||
+                        (t.gender || '').toLowerCase().includes(searchLower) ||
                         (t.hostelBlock || '').toLowerCase().includes(searchLower) ||
                         (t.wing || '').toLowerCase().includes(searchLower) ||
                         (t.roomNumber || '').toLowerCase().includes(searchLower);
@@ -116,7 +157,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
             <option value="Unresolved">Unresolved</option>
             <option value="In Progress">In Progress</option>
             <option value="Resolved">Resolved</option>
-            <option value="Escalated">⚠️ Escalated Only</option>
+            <option value="Escalated">🔴 Escalated Only</option>
           </select>
         </div>
 
@@ -135,13 +176,13 @@ export default function AdminPortal({ adminUser, onLogout }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Ticket ID</th>
-              <th>Date</th>
+              <th>Priority / Ticket ID</th>
+              <th>Date & Time Filed</th>
               <th>Location (Gender / Block / Wing / Room)</th>
               <th>Student Info</th>
               <th>Category & Description</th>
               <th>Photo Proof</th>
-              <th>SLA Status</th>
+              <th>SLA Escalation Status</th>
               <th>Action / Change Status</th>
             </tr>
           </thead>
@@ -152,12 +193,29 @@ export default function AdminPortal({ adminUser, onLogout }) {
               </tr>
             ) : (
               filteredTickets.map((t) => (
-                <tr key={t.id} className={t.isEscalated && t.status !== 'Resolved' ? 'row-escalated' : ''}>
+                <tr 
+                  key={t.id} 
+                  className={
+                    t.status === 'Resolved' 
+                      ? 'row-resolved' 
+                      : t.isEscalated 
+                      ? 'row-escalated' 
+                      : t.isUrgent 
+                      ? 'row-urgent' 
+                      : ''
+                  }
+                >
                   <td>
                     <span className="ticket-badge">{t.ticketId}</span>
+                    {t.isEscalated && t.status !== 'Resolved' && (
+                      <div className="priority-tag priority-high">PRIORITY 1</div>
+                    )}
+                    {t.isUrgent && !t.isEscalated && t.status !== 'Resolved' && (
+                      <div className="priority-tag priority-medium">PRIORITY 2</div>
+                    )}
                   </td>
                   <td>
-                    {t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : 'N/A'}
+                    {renderSubmissionTime(t.createdAt)}
                   </td>
                   <td>
                     <strong>{t.gender ? `${t.gender}'s Hostel` : 'Hostel'}</strong><br />
@@ -181,7 +239,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
                       <span className="text-muted">No Attachment</span>
                     )}
                   </td>
-                  <td>{renderSLA(t.dueDate, t.status)}</td>
+                  <td>{renderSLA(t.dueDate, t.status, t.isEscalated, t.isUrgent)}</td>
                   <td>
                     <select 
                       className={`status-select ${t.status.toLowerCase().replace(' ', '-')}`}

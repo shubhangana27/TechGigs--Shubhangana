@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase'; // Firebase Storage imports REMOVED
+import { db } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import './StudentPortal.css';
 
-// Get your API key free from https://api.imgbb.com/
 const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93'; // Replace with your actual ImgBB API key
 
 const CATEGORY_SLA = {
@@ -38,6 +37,14 @@ export default function StudentPortal({ user, onLogout }) {
         id: doc.id,
         ...doc.data()
       }));
+
+      // Sort newest submission first for student view
+      fetchedTickets.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+        return dateB - dateA;
+      });
+
       setTickets(fetchedTickets);
     }, (error) => {
       console.error("Firestore read error:", error);
@@ -46,7 +53,6 @@ export default function StudentPortal({ user, onLogout }) {
     return () => unsubscribe();
   }, [user]);
 
-  // Upload image to ImgBB
   const uploadToImgBB = async (imageFile) => {
     const formData = new FormData();
     formData.append('image', imageFile);
@@ -58,7 +64,7 @@ export default function StudentPortal({ user, onLogout }) {
 
     const data = await response.json();
     if (data.success) {
-      return data.data.url; // Direct URL to uploaded image
+      return data.data.url;
     } else {
       throw new Error(data.error?.message || 'Failed to upload image to ImgBB');
     }
@@ -75,7 +81,6 @@ export default function StudentPortal({ user, onLogout }) {
     try {
       let photoUrl = '';
 
-      // Upload image via ImgBB API if file selected
       if (file) {
         photoUrl = await uploadToImgBB(file);
       }
@@ -85,7 +90,6 @@ export default function StudentPortal({ user, onLogout }) {
       const dueDate = new Date();
       dueDate.setHours(dueDate.getHours() + slaHours);
 
-      // Save to Firestore
       await addDoc(collection(db, 'tickets'), {
         ticketId,
         studentName: user.name || 'Student',
@@ -140,6 +144,15 @@ export default function StudentPortal({ user, onLogout }) {
     return <span className="badge badge-warning">⏱️ Expected in {hours}h {mins}m</span>;
   };
 
+  // Helper to format date and time nicely
+  const formatDateTime = (timestamp) => {
+    if (!timestamp?.toDate) return 'Just now';
+    const dateObj = timestamp.toDate();
+    const dateStr = dateObj.toLocaleDateString();
+    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} at ${timeStr}`;
+  };
+
   return (
     <div className="portal-container">
       <header className="portal-header">
@@ -171,7 +184,6 @@ export default function StudentPortal({ user, onLogout }) {
           <form onSubmit={handleSubmit}>
             
             <div className="form-grid">
-                
               <div className="form-group">
                 <label>Boys/Girls</label>
                 <select value={gender} onChange={(e) => setGender(e.target.value)} required>
@@ -197,6 +209,7 @@ export default function StudentPortal({ user, onLogout }) {
                   <option value="Block S">Special</option>
                 </select>
               </div>
+
               <div className="form-group">
                 <label>Wing</label>
                 <select value={wing} onChange={(e) => setWing(e.target.value)} required>
@@ -279,8 +292,8 @@ export default function StudentPortal({ user, onLogout }) {
                   </div>
                   <p className="ticket-desc">{t.description}</p>
                   <div className="ticket-meta">
-                    <span>📍 {t.hostelBlock}, Room {t.roomNumber}</span>
-                    <span>📅 {t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : 'Just now'}</span>
+                    <span>📍 {t.gender ? `${t.gender}'s` : ''} {t.hostelBlock}, Wing {t.wing}, Room {t.roomNumber}</span>
+                    <span>🕒 Filed: {formatDateTime(t.createdAt)}</span>
                   </div>
                   {t.photoUrl && (
                     <div className="ticket-image-container">
