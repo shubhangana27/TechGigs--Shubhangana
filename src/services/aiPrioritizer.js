@@ -10,7 +10,6 @@ export async function evaluateTicketUrgency(category, description) {
     };
   }
 
-  // Updated to gemini-2.5-flash model endpoint
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
   const prompt = `You are a strict campus maintenance and emergency dispatch supervisor. 

@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import Login from './components/Login'; // or HomeScreen depending on your file name
+import Login from './components/Login'; 
 
-// Placeholders for now — we will build these next!
 import StudentPortal from './components/StudentPortal';
 import AdminPortal from './components/AdminPortal';
 
 export default function App() {
-  // Store page state ('login', 'student-portal', or 'admin-portal')
   const [currentPage, setCurrentPage] = useState('login');
   
-  // Store logged-in user data
   const [user, setUser] = useState(null);
 
   const handleLogout = () => {

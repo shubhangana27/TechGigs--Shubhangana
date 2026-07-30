@@ -14,7 +14,6 @@ const CATEGORY_SLA = {
   Cleaning: 8
 };
 
-// Pastel Category Styles Configuration
 const CATEGORY_STYLES = {
   Electricity: { bg: '#fef9c3', color: '#854d0e', border: '#fde047' }, // Soft Pastel Yellow
   Plumbing: { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },    // Soft Pastel Blue
@@ -35,7 +34,6 @@ export default function StudentPortal({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [tickets, setTickets] = useState([]);
 
-  // Time modification state for student modal
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [customTime, setCustomTime] = useState('');
 
@@ -97,7 +95,6 @@ export default function StudentPortal({ user, onLogout }) {
         photoUrl = await uploadToImgBB(file);
       }
 
-      // Evaluate complaint urgency with Gemini AI
       const aiAssessment = await evaluateTicketUrgency(category, description);
 
       const ticketId = `TICK-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -125,7 +122,6 @@ export default function StudentPortal({ user, onLogout }) {
         isEscalated: false,
         createdAt: serverTimestamp(),
 
-        // AI Categorization & Prioritization Data
         urgencyScore: aiAssessment.urgencyScore, 
         urgencyLabel: aiAssessment.urgencyLabel, 
         aiReasoning: aiAssessment.aiReasoning    
@@ -149,7 +145,6 @@ export default function StudentPortal({ user, onLogout }) {
     }
   };
 
-  // Student accepts the scheduled visit time
   const handleAcceptTime = async (ticketDocId) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketDocId);
@@ -167,7 +162,6 @@ export default function StudentPortal({ user, onLogout }) {
     }
   };
 
-  // Student submits a counter-proposed visit time
   const handleCounterPropose = async () => {
     if (!customTime) {
       alert('Please select a valid date and time.');
@@ -213,12 +207,11 @@ export default function StudentPortal({ user, onLogout }) {
     return `${dateObj.toLocaleDateString()} at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  // Extract student registration number or fallback ID dynamically
   const studentRegNo = user?.registrationNumber || user?.idInput || 'Student';
 
   return (
     <div className="portal-container">
-      {/* Top Header Section */}
+     
       <header className="portal-header">
         <div className="header-titles">
           <h1>Student Portal</h1>
@@ -227,7 +220,6 @@ export default function StudentPortal({ user, onLogout }) {
         <button className="logout-btn" onClick={onLogout}>Logout</button>
       </header>
 
-      {/* Tab Navigation Controls */}
       <div className="tab-navigation">
         <button 
           className={activeTab === 'new' ? 'active' : ''} 
@@ -243,7 +235,6 @@ export default function StudentPortal({ user, onLogout }) {
         </button>
       </div>
 
-      {/* Main Content Area */}
       {activeTab === 'new' ? (
         <div className="form-card-container">
           <div className="card form-card">
@@ -284,6 +275,7 @@ export default function StudentPortal({ user, onLogout }) {
                   <label>Wing</label>
                   <select value={wing} onChange={(e) => setWing(e.target.value)} required>
                     <option value="">-- Select Wing --</option>
+                    <option value="None">None</option>
                     <option value="A">Wing A</option>
                     <option value="B">Wing B</option>
                     <option value="C">Wing C</option>
@@ -356,7 +348,6 @@ export default function StudentPortal({ user, onLogout }) {
                 const score = t.urgencyScore || 3;
                 const label = t.urgencyLabel || (score >= 4 ? 'Critical' : score === 3 ? 'Medium' : 'Low');
                 
-                // Retrieve custom pastel color scheme for ticket category
                 const catStyle = CATEGORY_STYLES[t.category] || { bg: '#f1f5f9', color: '#334155', border: '#cbd5e1' };
 
                 return (
@@ -365,7 +356,6 @@ export default function StudentPortal({ user, onLogout }) {
                       <div>
                         <span className="ticket-id">{t.ticketId}</span>
                         
-                        {/* Dynamic Pastel Category Badge */}
                         <span 
                           className="ticket-category"
                           style={{
@@ -377,7 +367,6 @@ export default function StudentPortal({ user, onLogout }) {
                           {t.category}
                         </span>
 
-                        {/* AI Urgency Badge */}
                         <span 
                           style={{
                             marginLeft: '8px',
@@ -398,13 +387,11 @@ export default function StudentPortal({ user, onLogout }) {
                     </div>
                     <p className="ticket-desc">{t.description}</p>
                     
-                    {/* Visit Time Detail Panel */}
                     <div className="schedule-panel">
                       <strong>Scheduled Visit Time: </strong> 
                       <span>{formatDisplayTime(t.proposedVisitTime)}</span>
                     </div>
 
-                    {/* Student Decision Section */}
                     {t.status === 'Pending Student Confirmation' && (
                       <div className="action-panel">
                         <p>⚠️ Admin proposed a visit schedule. Please confirm or request an alternate time:</p>
@@ -417,7 +404,6 @@ export default function StudentPortal({ user, onLogout }) {
                       </div>
                     )}
 
-                    {/* Audit Remarks Log */}
                     {t.adminRemarks && t.adminRemarks.length > 0 && (
                       <div className="remarks-log">
                         <small><strong>Activity Log:</strong></small>
@@ -446,7 +432,6 @@ export default function StudentPortal({ user, onLogout }) {
         </div>
       )}
 
-      {/* Modify Time Modal */}
       {selectedTicket && (
         <div className="modal-overlay">
           <div className="modal-card">

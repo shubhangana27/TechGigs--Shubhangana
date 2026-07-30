@@ -1,16 +1,13 @@
-/* Full Page Gradient Setup */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  /* Soft, blended Light White to Light Blue Gradient */
   background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 40%, #e0f2fe 80%, #dbeafe 100%);
   background-attachment: fixed;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Container */
 .portal-container {
   max-width: 920px;
   margin: 0 auto;
@@ -19,7 +16,6 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Header Styling */
 .portal-header {
   display: flex;
   justify-content: space-between;
@@ -65,7 +61,6 @@ html, body {
   background: #dc2626;
 }
 
-/* Tab Navigation */
 .tab-navigation {
   display: flex;
   gap: 12px;
@@ -101,7 +96,6 @@ html, body {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
-/* Form Card Container - Centered and Compact */
 .form-card-container {
   display: flex;
   justify-content: center;
@@ -139,7 +133,6 @@ html, body {
   font-size: 0.88rem;
 }
 
-/* Form Controls & Grids */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -211,7 +204,6 @@ html, body {
   box-shadow: none;
 }
 
-/* Complaints History & List Styling */
 .history-card h3 {
   margin-top: 0;
   color: #0f172a;
@@ -251,7 +243,6 @@ html, body {
   color: #0f172a;
 }
 
-/* Pastel Ticket Category Badge Class */
 .ticket-category {
   padding: 3px 10px;
   border-radius: 6px;
@@ -294,7 +285,6 @@ html, body {
   font-size: 13px;
 }
 
-/* Panels & Logs */
 .schedule-panel {
   background: #eff6ff;
   border-left: 4px solid #2563eb;
@@ -354,7 +344,6 @@ html, body {
   margin: 4px 0;
 }
 
-/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;

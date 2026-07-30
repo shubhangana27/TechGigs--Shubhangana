@@ -65,7 +65,6 @@ export default function Login({ onNavigate, setUser }) {
 
   return (
     <div className={`home-container ${activeTab}`}>
-      {/* 1. Header with VIT Bhopal Logo */}
       <div className="page-header">
         <img 
           src={logoImg} 
@@ -76,12 +75,9 @@ export default function Login({ onNavigate, setUser }) {
         <p className="subtitle">Hostel Grievance Portal</p>
       </div>
 
-      {/* 2. Main Login Box */}
       <div className="auth-card">
-        {/* Instruction centered at top of box */}
         <p className="centered-instruction">Select your portal to log in</p>
 
-        {/* Tab Selection */}
         <div className="tab-group">
           <button
             type="button"
@@ -99,12 +95,10 @@ export default function Login({ onNavigate, setUser }) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleLogin}>
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            {/* Added inline style to guarantee pure white text color */}
             <label style={{ color: '#ffffff', fontWeight: 600 }}>
               {activeTab === 'student' ? 'Registration Number' : 'Admin ID'}
             </label>
@@ -118,7 +112,6 @@ export default function Login({ onNavigate, setUser }) {
           </div>
 
           <div className="form-group">
-            {/* Added inline style to guarantee pure white text color */}
             <label style={{ color: '#ffffff', fontWeight: 600 }}>Password</label>
             <input
               type="password"

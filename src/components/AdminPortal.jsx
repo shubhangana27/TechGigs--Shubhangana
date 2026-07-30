@@ -3,14 +3,13 @@ import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import './AdminPortal.css';
 
-// Pastel Category Styles Configuration (Matches Student Portal)
 const CATEGORY_STYLES = {
-  Electricity: { bg: '#fef9c3', color: '#854d0e', border: '#fde047' },       // Soft Pastel Yellow
-  Plumbing: { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },          // Soft Pastel Blue
-  Carpentry: { bg: '#f5ebe0', color: '#78350f', border: '#e6ccb2' },         // Soft Light Brown / Beige
-  'Internet/Wi-Fi': { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },  // Soft Pastel Purple
-  Internet: { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },          // Fallback support for Internet
-  Cleaning: { bg: '#dcfce7', color: '#15803d', border: '#86efac' }           // Soft Pastel Green
+  Electricity: { bg: '#fef9c3', color: '#854d0e', border: '#fde047' },       
+  Plumbing: { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },          
+  Carpentry: { bg: '#f5ebe0', color: '#78350f', border: '#e6ccb2' },         
+  'Internet/Wi-Fi': { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },  
+  Internet: { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },          
+  Cleaning: { bg: '#dcfce7', color: '#15803d', border: '#86efac' }           
 };
 
 export default function AdminPortal({ adminUser, onLogout }) {
@@ -45,12 +44,10 @@ export default function AdminPortal({ adminUser, onLogout }) {
         };
       });
 
-      // AI-Enhanced Priority & Escalation Sorting
       fetched.sort((a, b) => {
         const aIsResolved = a.status === 'Resolved';
         const bIsResolved = b.status === 'Resolved';
 
-        // 1. Move resolved tickets to the bottom
         if (!aIsResolved && bIsResolved) return -1;
         if (aIsResolved && !bIsResolved) return 1;
 
@@ -60,22 +57,18 @@ export default function AdminPortal({ adminUser, onLogout }) {
           return dateB - dateA;
         }
 
-        // 2. SLA Escalated tickets go straight to top
         if (a.isEscalated && !b.isEscalated) return -1;
         if (!a.isEscalated && b.isEscalated) return 1;
 
-        // 3. AI Urgency Score Sorting (Higher score = Top priority: 5 down to 1)
         const scoreA = a.urgencyScore || 3;
         const scoreB = b.urgencyScore || 3;
         if (scoreA !== scoreB) {
           return scoreB - scoreA;
         }
 
-        // 4. SLA Urgent time window check
         if (a.isUrgent && !b.isUrgent) return -1;
         if (!a.isUrgent && b.isUrgent) return 1;
 
-        // 5. Fallback to submission timestamp (Oldest first)
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
         const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
         return dateA - dateB;
@@ -87,7 +80,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
     return () => unsubscribe();
   }, []);
 
-  // Propose or Update Visit Time from Admin side
   const handleSetVisitSchedule = async () => {
     if (!visitTime) {
       alert('Please choose a date and time for the visit.');
@@ -120,7 +112,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
     }
   };
 
-  // Status updates directly (e.g. Marking as Resolved)
   const handleStatusChange = async (ticketDocId, newStatus) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketDocId);
@@ -201,7 +192,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
         <button className="logout-btn" onClick={onLogout}>Logout</button>
       </header>
 
-      {/* Filter Toolbar */}
       <div className="filter-bar">
         <div className="filter-group">
           <label>Filter Category:</label>
@@ -297,7 +287,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
                       <small className="text-muted">{t.studentRegistration}</small>
                     </td>
                     <td>
-                      {/* Styled Pastel Category Tag */}
                       <span
                         className="category-pill"
                         style={{
@@ -309,7 +298,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
                         {t.category}
                       </span>
 
-                      {/* AI Urgency Pill */}
                       {t.urgencyScore && (
                         <span 
                           style={{
@@ -395,7 +383,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
         </table>
       </div>
 
-      {/* Visit Scheduling Modal */}
       {activeTicket && (
         <div className="modal-overlay">
           <div className="modal-card">

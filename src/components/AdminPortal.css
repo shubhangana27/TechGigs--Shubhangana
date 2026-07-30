@@ -1,4 +1,3 @@
-/* Full Page Light Background Gradient */
 html, body {
   margin: 0;
   padding: 0;
@@ -9,7 +8,6 @@ html, body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Container expanded to 100% width with edge padding */
 .admin-container {
   width: 100%;
   max-width: 100%;
@@ -59,7 +57,6 @@ html, body {
   background: #dc2626;
 }
 
-/* Translucent Glass Filter Toolbar */
 .filter-bar {
   display: flex;
   gap: 16px;
@@ -105,7 +102,6 @@ html, body {
   margin-left: auto;
 }
 
-/* Table Wrapper expanded to fit without horizontal scrolling */
 .table-responsive {
   width: 100%;
   background: #ffffff;
@@ -149,7 +145,6 @@ html, body {
   background-color: #f8fafc;
 }
 
-/* Priority & Escalation Row Highlights */
 .row-escalated {
   background-color: #fff0f0 !important;
   border-left: 4px solid #ef4444;
@@ -199,7 +194,6 @@ html, body {
   color: #0f172a;
 }
 
-/* Category Pill Base Styling */
 .category-pill {
   display: inline-block;
   padding: 2px 6px;
@@ -229,7 +223,6 @@ html, body {
   text-decoration: underline;
 }
 
-/* SLA Status Badges */
 .badge {
   display: inline-block;
   padding: 3px 8px;
@@ -263,7 +256,6 @@ html, body {
   border: 1px solid #6ee7b7;
 }
 
-/* Status Select Dropdown - Multi-line Text Wrapping Allowed */
 .status-select {
   width: 100%;
   padding: 6px 8px;
@@ -275,7 +267,6 @@ html, body {
   outline: none;
   box-sizing: border-box;
 
-  /* ALLOW MULTI-LINE TEXT WRAPPING */
   white-space: normal !important;
   word-wrap: break-word !important;
   line-height: 1.25;
@@ -346,7 +337,6 @@ html, body {
   color: #94a3b8;
 }
 
-/* Modal Overlay & Dialog */
 .modal-overlay {
   position: fixed;
   top: 0;

@@ -28,8 +28,7 @@
   padding: 2rem 1rem;
   box-sizing: border-box;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
-  /* WIDE SWIPE GRADIENT: Student (Blue/Cyan) -> Admin (Violet/Purple) */
+
   background: linear-gradient(
     90deg, 
     #020617 0%, 
@@ -41,13 +40,9 @@
   background-size: 300% 100%;
   transition: background-position 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* STUDENT STATE: Swips from Right to Left (Blue gradient moves into view) */
 .home-container.student {
   background-position: 25% 0%;
 }
-
-/* ADMIN STATE: Swips from Left to Right (Purple gradient moves into view) */
 .home-container.admin {
   background-position: 75% 0%;
 }

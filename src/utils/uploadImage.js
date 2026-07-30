@@ -1,4 +1,3 @@
-// src/utils/uploadImage.js
 export const uploadImageToImgBB = async (file) => {
   const apiKey = "ed03a0331775e65e02bce77426567b93"; 
   const formData = new FormData();
