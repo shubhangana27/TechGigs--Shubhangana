@@ -330,12 +330,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
 
                       <p className="table-desc">{t.description}</p>
 
-                      {/* AI Note Justification */}
-                      {t.aiReasoning && (
-                        <small style={{ display: 'block', color: '#555', fontStyle: 'italic', marginTop: '4px' }}>
-                          💡 <strong>AI Reason:</strong> {t.aiReasoning}
-                        </small>
-                      )}
 
                       {t.photoUrl && (
                         <a href={t.photoUrl} target="_blank" rel="noreferrer" className="photo-link">
