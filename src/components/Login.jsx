@@ -64,8 +64,13 @@ export default function Login({ onNavigate, setUser }) {
 
   return (
     <div className="home-container">
-      {/* 1. Header (Above the Card) */}
+      {/* 1. Header with VIT Bhopal Logo */}
       <div className="page-header">
+        <img 
+          src="https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=100068430218870" 
+          alt="VIT Bhopal Logo" 
+          className="brand-logo" 
+        />
         <h1>Welcome to V-Help</h1>
         <p className="subtitle">Hostel Grievance Portal</p>
       </div>
