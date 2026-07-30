@@ -147,17 +147,17 @@ export default function AdminPortal({ adminUser, onLogout }) {
     const diffMs = due - now;
 
     if (diffMs <= 0 || isEscalated) {
-      return <span className="badge badge-escalated">🔴 ESCALATED (SLA Breached)</span>;
+      return <span className="badge badge-escalated">🔴 ESCALATED</span>;
     }
 
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
     if (isUrgent) {
-      return <span className="badge badge-urgent">⚠️ Urgent: {hours}h {mins}m remaining</span>;
+      return <span className="badge badge-urgent">⚠️ {hours}h {mins}m left</span>;
     }
 
-    return <span className="badge badge-active">⏱️ {hours}h {mins}m remaining</span>;
+    return <span className="badge badge-active">⏱️ {hours}h {mins}m left</span>;
   };
 
   const renderSubmissionTime = (timestamp) => {
@@ -195,7 +195,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
     <div className="admin-container">
       <header className="admin-header">
         <div>
-          <h2>Campus Admin Dashboard — Maintenance Queue</h2>
+          <h2>Campus Admin Dashboard</h2>
           <p>Logged in as: <strong>{adminUser?.adminId || 'Administrator'}</strong></p>
         </div>
         <button className="logout-btn" onClick={onLogout}>Logout</button>
@@ -242,15 +242,15 @@ export default function AdminPortal({ adminUser, onLogout }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Priority / Ticket ID</th>
-              <th>Date & Time Filed</th>
-              <th>Location</th>
-              <th>Student Info</th>
-              <th>Category & Description</th>
-              <th>Schedule / Visit Time</th>
-              <th>Activity Remarks</th>
-              <th>SLA Status</th>
-              <th>Action / Change Status</th>
+              <th style={{ width: '10%' }}>Priority / ID</th>
+              <th style={{ width: '10%' }}>Filed Date</th>
+              <th style={{ width: '11%' }}>Location</th>
+              <th style={{ width: '12%' }}>Student Info</th>
+              <th style={{ width: '25%' }}>Category & Description</th>
+              <th style={{ width: '12%' }}>Visit Schedule</th>
+              <th style={{ width: '10%' }}>Remarks</th>
+              <th style={{ width: '10%' }}>SLA</th>
+              <th style={{ width: '10%' }}>Status Action</th>
             </tr>
           </thead>
           <tbody>
@@ -313,10 +313,10 @@ export default function AdminPortal({ adminUser, onLogout }) {
                       {t.urgencyScore && (
                         <span 
                           style={{
-                            marginLeft: '8px',
-                            padding: '2px 8px',
+                            marginLeft: '6px',
+                            padding: '2px 6px',
                             borderRadius: '12px',
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             fontWeight: 'bold',
                             display: 'inline-block',
                             backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
@@ -324,7 +324,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
                             border: `1px solid ${t.urgencyScore >= 4 ? '#ef5350' : t.urgencyScore === 3 ? '#ffb74d' : '#81c784'}`
                           }}
                         >
-                          🤖 AI: {t.urgencyLabel || `Level ${t.urgencyScore}`} ({t.urgencyScore}/5)
+                          🤖 AI: {t.urgencyLabel || `Level ${t.urgencyScore}`}
                         </span>
                       )}
 
