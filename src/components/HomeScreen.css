@@ -66,9 +66,9 @@
 
 .centered-instruction {
   text-align: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
   margin: 0 0 1.5rem 0;
 }
 
