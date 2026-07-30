@@ -1,6 +1,6 @@
 // src/utils/uploadImage.js
 export const uploadImageToImgBB = async (file) => {
-  const apiKey = "YOUR_IMGBB_API_KEY"; // Replace with your key
+  const apiKey = "ed03a0331775e65e02bce77426567b93"; 
   const formData = new FormData();
   formData.append("image", file);
 
