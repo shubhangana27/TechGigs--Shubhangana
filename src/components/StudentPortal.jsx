@@ -17,6 +17,8 @@ const CATEGORY_SLA = {
 export default function StudentPortal({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('new');
   const [hostelBlock, setHostelBlock] = useState('');
+  const [gender, setGender] = useState('');
+  const [wing, setWing] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
@@ -64,7 +66,7 @@ export default function StudentPortal({ user, onLogout }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!hostelBlock || !roomNumber || !category || !description) {
+    if (!gender || !hostelBlock || !wing || !roomNumber || !category || !description) {
       alert('Please fill out all required fields.');
       return;
     }
@@ -89,7 +91,9 @@ export default function StudentPortal({ user, onLogout }) {
         studentName: user.name || 'Student',
         studentRegistration: user.registrationNumber,
         studentEmail: user.email || '',
+        gender,
         hostelBlock,
+        wing,
         roomNumber,
         category,
         description,
@@ -103,7 +107,9 @@ export default function StudentPortal({ user, onLogout }) {
 
       alert(`Grievance submitted successfully! Ticket ID: ${ticketId}`);
       
+      setGender('');
       setHostelBlock('');
+      setWing('');
       setRoomNumber('');
       setCategory('');
       setDescription('');
@@ -163,26 +169,58 @@ export default function StudentPortal({ user, onLogout }) {
         <div className="card form-card">
           <h3>Raise a New Maintenance Request</h3>
           <form onSubmit={handleSubmit}>
+            
             <div className="form-grid">
+                
+              <div className="form-group">
+                <label>Boys/Girls</label>
+                <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                  <option value="">-- Select--</option>
+                  <option value="Boys">Boys</option>
+                  <option value="Girls">Girls</option>
+                </select>
+              </div>
+                
               <div className="form-group">
                 <label>Hostel Block</label>
                 <select value={hostelBlock} onChange={(e) => setHostelBlock(e.target.value)} required>
                   <option value="">-- Select Block --</option>
-                  <option value="Block A">Block A</option>
-                  <option value="Block B">Block B</option>
-                  <option value="Block C">Block C</option>
-                  <option value="Block D">Block D</option>
+                  <option value="Block 1">Block 1</option>
+                  <option value="Block 2">Block 2</option>
+                  <option value="Block 3">Block 3</option>
+                  <option value="Block 4">Block 4</option>
+                  <option value="Block 5">Block 5</option>
+                  <option value="Block 6">Block 6</option>
+                  <option value="Block 7">Block 7</option>
+                  <option value="Block 8">Block 8</option>
+                  <option value="Block R">Recreational</option>
+                  <option value="Block S">Special</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Wing</label>
+                <select value={wing} onChange={(e) => setWing(e.target.value)} required>
+                  <option value="">-- Select--</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                  <option value="G">G</option>
+                  <option value="H">H</option>
                 </select>
               </div>
 
               <div className="form-group">
                 <label>Room Number</label>
-                <select value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} required>
-                  <option value="">-- Select Room --</option>
-                  {[...Array(30)].map((_, i) => (
-                    <option key={i + 101} value={`${i + 101}`}>{i + 101}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  placeholder="Enter room number"
+                  value={roomNumber}
+                  onChange={(e) => setRoomNumber(e.target.value)}
+                  required
+                />
               </div>
             </div>
 
