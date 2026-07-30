@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import './HomeScreen.css';
+import logoImg from 'images.jpg';
 
 export default function Login({ onNavigate, setUser }) {
   const [activeTab, setActiveTab] = useState('student');
@@ -67,7 +68,7 @@ export default function Login({ onNavigate, setUser }) {
       {/* 1. Header with VIT Bhopal Logo */}
       <div className="page-header">
         <img 
-          src="/images.jpg" 
+          src={logoImg} 
           alt="VIT Bhopal Logo" 
           className="brand-logo" 
         />
