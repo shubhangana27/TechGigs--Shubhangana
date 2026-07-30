@@ -1,116 +1,109 @@
-/* ==========================================================================
-   Design Tokens / Variables (Shared across Homescreen, Student, & Admin)
-   ========================================================================== */
 :root {
+  /* Colors */
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
-  --primary-disabled: #93c5fd;
+  --primary-light: #eff6ff;
   
-  --bg-main: #f8fafc;
+  --bg-gradient: radial-gradient(at 0% 0%, #e0e7ff 0px, transparent 50%),
+                 radial-gradient(at 100% 100%, #f1f5f9 0px, transparent 50%),
+                 #f8fafc;
   --bg-card: #ffffff;
   
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --text-placeholder: #94a3b8;
   
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
   
-  --error-bg: #fef2f2;
-  --error-border: #fecaca;
-  --error-text: #dc2626;
+  /* Geometry & Polish */
+  --radius-card: 20px;
+  --radius-btn: 10px;
+  --radius-input: 10px;
   
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  
-  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  --shadow-input-focus: 0 0 0 4px rgba(37, 99, 235, 0.15);
-  --shadow-btn-focus: 0 0 0 4px rgba(37, 99, 235, 0.35);
-  
-  --transition-fast: 0.2s ease;
+  --shadow-card: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
 }
 
-/* Base Container */
+/* Background canvas with modern mesh gradient */
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg-gradient);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
   color: var(--text-main);
   padding: 1.5rem;
   box-sizing: border-box;
 }
 
-/* Authentication Card */
+/* Redesigned Card */
 .auth-card {
   background: var(--bg-card);
-  padding: 2.5rem;
-  border-radius: var(--radius-md);
+  padding: 2.75rem 2.25rem;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   box-sizing: border-box;
+  backdrop-filter: blur(8px);
+}
+
+/* Typography refinements */
+.auth-card h2, .auth-card h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  margin: 0 0 0.25rem 0;
 }
 
 .subtitle {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin-top: 0.25rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.4;
+  margin-bottom: 2rem;
 }
 
-/* Navigation Tabs */
+/* Segmented Pill Navigation Tabs (Apple/Modern SaaS Style) */
 .tab-group {
   display: flex;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  position: relative;
+  background-color: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 1.75rem;
+  border: none;
 }
 
 .tab-btn {
   flex: 1;
-  padding: 0.75rem 0.5rem;
-  background: none;
+  padding: 0.65rem 0.5rem;
+  background: transparent;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-muted);
-  transition: color var(--transition-fast);
-  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-btn:hover {
   color: var(--text-main);
 }
 
-.tab-btn:focus-visible {
-  outline: none;
-  color: var(--primary);
-  border-radius: var(--radius-sm);
-}
-
 .tab-btn.active {
+  background-color: #ffffff;
   color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Active tab indicator using ::after to avoid layout jitter */
 .tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--primary);
-  border-radius: 2px 2px 0 0;
+  display: none; /* Removes old underline */
 }
 
-/* Form Inputs */
+/* Form Controls */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -119,25 +112,27 @@
 }
 
 .form-group label {
-  font-size: 0.85rem;
+  font-size: 0.825rem;
   font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
 }
 
 .form-group input {
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-input);
   font-size: 0.95rem;
   color: var(--text-main);
-  background-color: #fff;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background-color: #ffffff;
+  transition: all 0.2s ease;
   outline: none;
 }
 
 .form-group input::placeholder {
-  color: var(--text-light);
+  color: var(--text-placeholder);
 }
 
 .form-group input:hover {
@@ -146,51 +141,43 @@
 
 .form-group input:focus {
   border-color: var(--primary);
-  box-shadow: var(--shadow-input-focus);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
-/* Action Buttons */
+/* Primary Button (Matching brand color) */
 .submit-btn {
   width: 100%;
-  padding: 0.85rem;
+  padding: 0.9rem;
+  margin-top: 0.5rem;
   background-color: var(--primary);
-  color: white;
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-btn);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .submit-btn:hover:not(:disabled) {
   background-color: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
 }
 
 .submit-btn:active:not(:disabled) {
-  transform: scale(0.99);
+  transform: translateY(0);
 }
 
-.submit-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-btn-focus);
-}
-
-.submit-btn:disabled {
-  background-color: var(--primary-disabled);
-  cursor: not-allowed;
-}
-
-/* Alert / Error State */
+/* Error State */
 .error-message {
-  background-color: var(--error-bg);
-  border: 1px solid var(--error-border);
-  color: var(--error-text);
-  padding: 0.65rem 0.85rem;
-  border-radius: var(--radius-sm);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-input);
   margin-bottom: 1.25rem;
   font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-weight: 500;
 }
