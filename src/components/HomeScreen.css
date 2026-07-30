@@ -1,138 +1,173 @@
+/* ==========================================================================
+   Design Tokens / Variables (Unified Dark/Glass Theme)
+   ========================================================================== */
 :root {
   /* Colors */
-  --primary: #2563eb;
+  --primary: #2563eb;       /* Primary blue for buttons/active tabs */
   --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
+  --primary-disabled: #93c5fd;
   
-  --bg-gradient: radial-gradient(at 0% 0%, #e0e7ff 0px, transparent 50%),
-                 radial-gradient(at 100% 100%, #f1f5f9 0px, transparent 50%),
-                 #f8fafc;
-  --bg-card: #ffffff;
+  --bg-dark-mesh: radial-gradient(at 0% 0%, #0f172a 0px, transparent 50%),
+                   radial-gradient(at 100% 100%, #111827 0px, transparent 50%),
+                   #020617; /* Background remains dark and attractive */
   
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-placeholder: #94a3b8;
+  /* GLASS CARD COLOR (Lightened for better readability, as requested) */
+  --bg-card: rgba(255, 255, 255, 0.15); /* Significantly lightened from the dark look */
   
-  --border-color: #e2e8f0;
-  --border-hover: #cbd5e1;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-light: #94a3b8;
   
-  /* Geometry & Polish */
-  --radius-card: 20px;
-  --radius-btn: 10px;
-  --radius-input: 10px;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --border-hover: rgba(255, 255, 255, 0.4);
   
-  --shadow-card: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+  --error-bg: rgba(220, 38, 38, 0.2);
+  --error-border: rgba(220, 38, 38, 0.4);
+  --error-text: #fecaca;
+  
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-input-focus: 0 0 0 4px rgba(37, 99, 235, 0.25);
+  --shadow-btn-focus: 0 0 0 4px rgba(37, 99, 235, 0.45);
+  
+  --transition-fast: 0.2s ease;
 }
 
-/* Background canvas with modern mesh gradient */
+/* Base Container */
 .home-container {
   display: flex;
+  flex-direction: column; /* Allow header to sit above card */
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: var(--bg-gradient);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+  background: var(--bg-dark-mesh);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text-main);
-  padding: 1.5rem;
+  padding: 2rem;
   box-sizing: border-box;
+  text-align: center; /* Center the overall text */
 }
 
-/* Redesigned Card */
+/* Page Header (Welcometo V-Help) */
+.page-header {
+  margin-bottom: 2.5rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+}
+
+.page-header .subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Authentication Card (Lightened Glassmorphism) */
 .auth-card {
   background: var(--bg-card);
-  padding: 2.75rem 2.25rem;
-  border-radius: var(--radius-card);
+  padding: 3rem 2.5rem; /* Extra vertical padding */
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(12px); /* Maintain the blur effect */
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-card);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-color);
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   box-sizing: border-box;
-  backdrop-filter: blur(8px);
 }
 
-/* Typography refinements */
-.auth-card h2, .auth-card h1 {
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+/* Centered instruction text (Replaced heading and instruction line) */
+.centered-instruction {
   color: var(--text-main);
-  margin: 0 0 0.25rem 0;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
   margin-bottom: 2rem;
+  text-align: center; /* Explicitly centered */
 }
 
-/* Segmented Pill Navigation Tabs (Apple/Modern SaaS Style) */
+/* Navigation Tabs (Unified Theme) */
 .tab-group {
   display: flex;
-  background-color: #f1f5f9;
-  padding: 4px;
-  border-radius: 12px;
-  margin-bottom: 1.75rem;
-  border: none;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
 }
 
 .tab-btn {
   flex: 1;
-  padding: 0.65rem 0.5rem;
-  background: transparent;
+  padding: 0.85rem 0.5rem;
+  background: none;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-muted);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color var(--transition-fast);
+  position: relative;
 }
 
 .tab-btn:hover {
   color: var(--text-main);
 }
 
-.tab-btn.active {
-  background-color: #ffffff;
+.tab-btn:focus-visible {
+  outline: none;
   color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-sm);
 }
 
+.tab-btn.active {
+  color: var(--primary);
+}
+
+/* Active tab indicator */
 .tab-btn.active::after {
-  display: none; /* Removes old underline */
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+  border-radius: 2px 2px 0 0;
 }
 
-/* Form Controls */
+/* Form Inputs (Lightened) */
 .form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 1.25rem;
-  text-align: left;
+  text-align: left; /* Keep form labels left-aligned */
 }
 
 .form-group label {
-  font-size: 0.825rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   margin-bottom: 0.5rem;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .form-group input {
-  padding: 0.85rem 1rem;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-input);
+  padding: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   color: var(--text-main);
-  background-color: #ffffff;
-  transition: all 0.2s ease;
+  background-color: rgba(0, 0, 0, 0.3); /* Darkened input background for contrast on lightened card */
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   outline: none;
 }
 
 .form-group input::placeholder {
-  color: var(--text-placeholder);
+  color: var(--text-light);
 }
 
 .form-group input:hover {
@@ -141,43 +176,52 @@
 
 .form-group input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  box-shadow: var(--shadow-input-focus);
 }
 
-/* Primary Button (Matching brand color) */
+/* Action Buttons (Unified Blue) */
 .submit-btn {
   width: 100%;
   padding: 0.9rem;
-  margin-top: 0.5rem;
   background-color: var(--primary);
-  color: #ffffff;
+  color: white;
   border: none;
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  margin-top: 0.5rem;
 }
 
 .submit-btn:hover:not(:disabled) {
   background-color: var(--primary-hover);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-  transform: translateY(-1px);
 }
 
 .submit-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.99);
 }
 
-/* Error State */
+.submit-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-btn-focus);
+}
+
+.submit-btn:disabled {
+  background-color: var(--primary-disabled);
+  cursor: not-allowed;
+}
+
+/* Alert / Error State */
 .error-message {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #ef4444;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
   padding: 0.75rem 1rem;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   margin-bottom: 1.25rem;
   font-size: 0.85rem;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
