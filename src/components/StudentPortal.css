@@ -251,12 +251,14 @@ html, body {
   color: #0f172a;
 }
 
+/* Pastel Ticket Category Badge Class */
 .ticket-category {
-  background: #e2e8f0;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
   font-size: 12px;
-  color: #334155;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.2s ease;
 }
 
 .badge {

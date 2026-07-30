@@ -14,6 +14,15 @@ const CATEGORY_SLA = {
   Cleaning: 8
 };
 
+// Pastel Category Styles Configuration
+const CATEGORY_STYLES = {
+  Electricity: { bg: '#fef9c3', color: '#854d0e', border: '#fde047' }, // Soft Pastel Yellow
+  Plumbing: { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },    // Soft Pastel Blue
+  Carpentry: { bg: '#f5ebe0', color: '#78350f', border: '#e6ccb2' },   // Soft Light Brown / Beige
+  Internet: { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },    // Soft Pastel Purple
+  Cleaning: { bg: '#dcfce7', color: '#15803d', border: '#86efac' }     // Soft Pastel Green
+};
+
 export default function StudentPortal({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('new');
   const [hostelBlock, setHostelBlock] = useState('');
@@ -347,14 +356,28 @@ export default function StudentPortal({ user, onLogout }) {
                 const score = t.urgencyScore || 3;
                 const label = t.urgencyLabel || (score >= 4 ? 'Critical' : score === 3 ? 'Medium' : 'Low');
                 
+                // Retrieve custom pastel color scheme for ticket category
+                const catStyle = CATEGORY_STYLES[t.category] || { bg: '#f1f5f9', color: '#334155', border: '#cbd5e1' };
+
                 return (
                   <div key={t.id} className="ticket-item">
                     <div className="ticket-header">
                       <div>
                         <span className="ticket-id">{t.ticketId}</span>
-                        <span className="ticket-category">{t.category}</span>
                         
-                        {/* Dynamic AI Badge Rendering */}
+                        {/* Dynamic Pastel Category Badge */}
+                        <span 
+                          className="ticket-category"
+                          style={{
+                            backgroundColor: catStyle.bg,
+                            color: catStyle.color,
+                            border: `1px solid ${catStyle.border}`
+                          }}
+                        >
+                          {t.category}
+                        </span>
+
+                        {/* AI Urgency Badge */}
                         <span 
                           style={{
                             marginLeft: '8px',
