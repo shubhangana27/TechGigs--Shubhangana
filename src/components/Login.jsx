@@ -67,7 +67,7 @@ export default function Login({ onNavigate, setUser }) {
       {/* 1. Header with VIT Bhopal Logo */}
       <div className="page-header">
         <img 
-          src="public\images.jpg" 
+          src="images.jpg" 
           alt="VIT Bhopal Logo" 
           className="brand-logo" 
         />
