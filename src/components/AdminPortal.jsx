@@ -35,11 +35,12 @@ export default function AdminPortal({ adminUser, onLogout }) {
         };
       });
 
-      // Escalation and Priority Sorting
+      // AI-Enhanced Priority & Escalation Sorting
       fetched.sort((a, b) => {
         const aIsResolved = a.status === 'Resolved';
         const bIsResolved = b.status === 'Resolved';
 
+        // 1. Move resolved tickets to the bottom
         if (!aIsResolved && bIsResolved) return -1;
         if (aIsResolved && !bIsResolved) return 1;
 
@@ -49,12 +50,22 @@ export default function AdminPortal({ adminUser, onLogout }) {
           return dateB - dateA;
         }
 
+        // 2. SLA Escalated tickets go straight to top
         if (a.isEscalated && !b.isEscalated) return -1;
         if (!a.isEscalated && b.isEscalated) return 1;
 
+        // 3. AI Urgency Score Sorting (Higher score = Top priority: 5 down to 1)
+        const scoreA = a.urgencyScore || 3;
+        const scoreB = b.urgencyScore || 3;
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA;
+        }
+
+        // 4. SLA Urgent time window check
         if (a.isUrgent && !b.isUrgent) return -1;
         if (!a.isUrgent && b.isUrgent) return 1;
 
+        // 5. Fallback to submission timestamp (Oldest first)
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
         const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
         return dateA - dateB;
@@ -274,7 +285,35 @@ export default function AdminPortal({ adminUser, onLogout }) {
                   </td>
                   <td>
                     <span className="category-pill">{t.category}</span>
+
+                    {/* AI Urgency Pill */}
+                    {t.urgencyScore && (
+                      <span 
+                        style={{
+                          marginLeft: '8px',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                          display: 'inline-block',
+                          backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
+                          color: t.urgencyScore >= 4 ? '#c62828' : t.urgencyScore === 3 ? '#e65100' : '#2e7d32',
+                          border: `1px solid ${t.urgencyScore >= 4 ? '#ef5350' : t.urgencyScore === 3 ? '#ffb74d' : '#81c784'}`
+                        }}
+                      >
+                        🤖 AI: {t.urgencyLabel || `Level ${t.urgencyScore}`} ({t.urgencyScore}/5)
+                      </span>
+                    )}
+
                     <p className="table-desc">{t.description}</p>
+
+                    {/* AI Note Justification */}
+                    {t.aiReasoning && (
+                      <small style={{ display: 'block', color: '#555', fontStyle: 'italic', marginTop: '4px' }}>
+                        💡 <strong>AI Reason:</strong> {t.aiReasoning}
+                      </small>
+                    )}
+
                     {t.photoUrl && (
                       <a href={t.photoUrl} target="_blank" rel="noreferrer" className="photo-link">
                         🖼️ View Photo
