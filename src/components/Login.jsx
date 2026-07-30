@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import './HomeScreen.css';
 
@@ -17,11 +17,14 @@ export default function Login({ onNavigate, setUser }) {
 
     try {
       const cleanId = idInput.trim();
+      
+      // Determine collection name and search field based on active tab
+      const collectionName = activeTab === 'student' ? 'users' : 'admins';
       const searchField = activeTab === 'student' ? 'registrationNumber' : 'adminId';
 
-      // 1. Query all subcollections named 'users' using collectionGroup
+      // 1. Query root-level collection directly using collection()
       const q = query(
-        collectionGroup(db, 'users'),
+        collection(db, collectionName),
         where(searchField, '==', cleanId)
       );
 
@@ -103,7 +106,7 @@ export default function Login({ onNavigate, setUser }) {
             <input
               type="text"
               required
-              placeholder={activeTab === 'student' ? 'e.g. 24BAI10038' : 'e.g. ADMIN101'}
+              placeholder={activeTab === 'student' ? 'e.g. 24BAI10038' : 'e.g. AAA1'}
               value={idInput}
               onChange={(e) => setIdInput(e.target.value)}
             />
