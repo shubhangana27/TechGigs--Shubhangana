@@ -3,6 +3,16 @@ import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import './AdminPortal.css';
 
+// Pastel Category Styles Configuration (Matches Student Portal)
+const CATEGORY_STYLES = {
+  Electricity: { bg: '#fef9c3', color: '#854d0e', border: '#fde047' },       // Soft Pastel Yellow
+  Plumbing: { bg: '#e0f2fe', color: '#0369a1', border: '#bae6fd' },          // Soft Pastel Blue
+  Carpentry: { bg: '#f5ebe0', color: '#78350f', border: '#e6ccb2' },         // Soft Light Brown / Beige
+  'Internet/Wi-Fi': { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },  // Soft Pastel Purple
+  Internet: { bg: '#f3e8ff', color: '#6b21a8', border: '#e9d5ff' },          // Fallback support for Internet
+  Cleaning: { bg: '#dcfce7', color: '#15803d', border: '#86efac' }           // Soft Pastel Green
+};
+
 export default function AdminPortal({ adminUser, onLogout }) {
   const [tickets, setTickets] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -167,7 +177,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
   const filteredTickets = tickets.filter((t) => {
     const matchCategory = categoryFilter === 'All' || t.category === categoryFilter;
     const matchStatus = statusFilter === 'All' || 
-                         (statusFilter === 'Escalated' ? t.isEscalated : t.status === statusFilter);
+                        (statusFilter === 'Escalated' ? t.isEscalated : t.status === statusFilter);
     
     const searchLower = searchTerm.toLowerCase();
     const matchSearch = (t.ticketId || '').toLowerCase().includes(searchLower) ||
@@ -200,7 +210,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
             <option value="Electricity">Electricity</option>
             <option value="Plumbing">Plumbing</option>
             <option value="Carpentry">Carpentry</option>
-            <option value="Internet">Internet/Wi-Fi</option>
+            <option value="Internet/Wi-Fi">Internet/Wi-Fi</option>
             <option value="Cleaning">Cleaning</option>
           </select>
         </div>
@@ -249,123 +259,143 @@ export default function AdminPortal({ adminUser, onLogout }) {
                 <td colSpan="9" className="no-records">No grievances match current filters.</td>
               </tr>
             ) : (
-              filteredTickets.map((t) => (
-                <tr 
-                  key={t.id} 
-                  className={
-                    t.status === 'Resolved' 
-                      ? 'row-resolved' 
-                      : t.isEscalated 
-                      ? 'row-escalated' 
-                      : t.isUrgent 
-                      ? 'row-urgent' 
-                      : ''
-                  }
-                >
-                  <td>
-                    <span className="ticket-badge">{t.ticketId}</span>
-                    {t.isEscalated && t.status !== 'Resolved' && (
-                      <div className="priority-tag priority-high">PRIORITY 1</div>
-                    )}
-                    {t.isUrgent && !t.isEscalated && t.status !== 'Resolved' && (
-                      <div className="priority-tag priority-medium">PRIORITY 2</div>
-                    )}
-                  </td>
-                  <td>
-                    {renderSubmissionTime(t.createdAt)}
-                  </td>
-                  <td>
-                    <strong>{t.gender ? `${t.gender}'s Hostel` : 'Hostel'}</strong><br />
-                    <span>{t.hostelBlock || 'N/A'} {t.wing ? `• Wing ${t.wing}` : ''}</span><br />
-                    <small className="text-muted">Room {t.roomNumber || 'N/A'}</small>
-                  </td>
-                  <td>
-                    <div><strong>{t.studentName}</strong></div>
-                    <small className="text-muted">{t.studentRegistration}</small>
-                  </td>
-                  <td>
-                    <span className="category-pill">{t.category}</span>
+              filteredTickets.map((t) => {
+                const catStyle = CATEGORY_STYLES[t.category] || { bg: '#f1f5f9', color: '#334155', border: '#cbd5e1' };
 
-                    {/* AI Urgency Pill */}
-                    {t.urgencyScore && (
-                      <span 
+                return (
+                  <tr 
+                    key={t.id} 
+                    className={
+                      t.status === 'Resolved' 
+                        ? 'row-resolved' 
+                        : t.isEscalated 
+                        ? 'row-escalated' 
+                        : t.isUrgent 
+                        ? 'row-urgent' 
+                        : ''
+                    }
+                  >
+                    <td>
+                      <span className="ticket-badge">{t.ticketId}</span>
+                      {t.isEscalated && t.status !== 'Resolved' && (
+                        <div className="priority-tag priority-high">PRIORITY 1</div>
+                      )}
+                      {t.isUrgent && !t.isEscalated && t.status !== 'Resolved' && (
+                        <div className="priority-tag priority-medium">PRIORITY 2</div>
+                      )}
+                    </td>
+                    <td>
+                      {renderSubmissionTime(t.createdAt)}
+                    </td>
+                    <td>
+                      <strong>{t.gender ? `${t.gender}'s Hostel` : 'Hostel'}</strong><br />
+                      <span>{t.hostelBlock || 'N/A'} {t.wing ? `• Wing ${t.wing}` : ''}</span><br />
+                      <small className="text-muted">Room {t.roomNumber || 'N/A'}</small>
+                    </td>
+                    <td>
+                      <div><strong>{t.studentName}</strong></div>
+                      <small className="text-muted">{t.studentRegistration}</small>
+                    </td>
+                    <td>
+                      {/* Styled Pastel Category Tag */}
+                      <span
+                        className="category-pill"
                         style={{
-                          marginLeft: '8px',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '0.75rem',
-                          fontWeight: 'bold',
-                          display: 'inline-block',
-                          backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
-                          color: t.urgencyScore >= 4 ? '#c62828' : t.urgencyScore === 3 ? '#e65100' : '#2e7d32',
-                          border: `1px solid ${t.urgencyScore >= 4 ? '#ef5350' : t.urgencyScore === 3 ? '#ffb74d' : '#81c784'}`
+                          backgroundColor: catStyle.bg,
+                          color: catStyle.color,
+                          border: `1px solid ${catStyle.border}`
                         }}
                       >
-                        🤖 AI: {t.urgencyLabel || `Level ${t.urgencyScore}`} ({t.urgencyScore}/5)
+                        {t.category}
                       </span>
-                    )}
 
-                    <p className="table-desc">{t.description}</p>
-
-                    {/* AI Note Justification */}
-                    {t.aiReasoning && (
-                      <small style={{ display: 'block', color: '#555', fontStyle: 'italic', marginTop: '4px' }}>
-                        💡 <strong>AI Reason:</strong> {t.aiReasoning}
-                      </small>
-                    )}
-
-                    {t.photoUrl && (
-                      <a href={t.photoUrl} target="_blank" rel="noreferrer" className="photo-link">
-                        🖼️ View Photo
-                      </a>
-                    )}
-                  </td>
-                  <td>
-                    <div className="schedule-info">
-                      {t.proposedVisitTime ? (
-                        <strong>{new Date(t.proposedVisitTime).toLocaleString()}</strong>
-                      ) : (
-                        <span className="text-muted">Unscheduled</span>
+                      {/* AI Urgency Pill */}
+                      {t.urgencyScore && (
+                        <span 
+                          style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            display: 'inline-block',
+                            backgroundColor: t.urgencyScore >= 4 ? '#ffebee' : t.urgencyScore === 3 ? '#fff3e0' : '#e8f5e9',
+                            color: t.urgencyScore >= 4 ? '#c62828' : t.urgencyScore === 3 ? '#e65100' : '#2e7d32',
+                            border: `1px solid ${t.urgencyScore >= 4 ? '#ef5350' : t.urgencyScore === 3 ? '#ffb74d' : '#81c784'}`
+                          }}
+                        >
+                          🤖 AI: {t.urgencyLabel || `Level ${t.urgencyScore}`} ({t.urgencyScore}/5)
+                        </span>
                       )}
-                      <button 
-                        className="schedule-btn"
-                        onClick={() => {
-                          setActiveTicket(t);
-                          setVisitTime(t.proposedVisitTime || '');
-                        }}
+
+                      <p className="table-desc">{t.description}</p>
+
+                      {/* AI Note Justification */}
+                      {t.aiReasoning && (
+                        <small style={{ display: 'block', color: '#555', fontStyle: 'italic', marginTop: '4px' }}>
+                          💡 <strong>AI Reason:</strong> {t.aiReasoning}
+                        </small>
+                      )}
+
+                      {t.photoUrl && (
+                        <a href={t.photoUrl} target="_blank" rel="noreferrer" className="photo-link">
+                          🖼️ View Photo
+                        </a>
+                      )}
+                    </td>
+                    <td>
+                      <div className="schedule-info">
+                        {t.proposedVisitTime ? (
+                          <strong>{new Date(t.proposedVisitTime).toLocaleString()}</strong>
+                        ) : (
+                          <span className="text-muted">Unscheduled</span>
+                        )}
+                        <button 
+                          className="schedule-btn"
+                          onClick={() => {
+                            setActiveTicket(t);
+                            setVisitTime(t.proposedVisitTime || '');
+                          }}
+                        >
+                          📅 Set/Change Visit
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="remarks-column">
+                        {t.adminRemarks && t.adminRemarks.length > 0 ? (
+                          <ul>
+                            {t.adminRemarks.map((rem, i) => (
+                              <li key={i}><small>{rem}</small></li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-muted">No remarks yet</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>{renderSLA(t.dueDate, t.status, t.isEscalated, t.isUrgent)}</td>
+                    <td>
+                      <select 
+                        className={`status-select ${
+                          t.status === 'Resolved'
+                            ? 'resolved'
+                            : t.status === 'In Progress' || t.status === 'Scheduled'
+                            ? 'in-progress'
+                            : 'unresolved'
+                        }`}
+                        value={t.status}
+                        onChange={(e) => handleStatusChange(t.id, e.target.value)}
                       >
-                        📅 Set/Change Visit
-                      </button>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="remarks-column">
-                      {t.adminRemarks && t.adminRemarks.length > 0 ? (
-                        <ul>
-                          {t.adminRemarks.map((rem, i) => (
-                            <li key={i}><small>{rem}</small></li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className="text-muted">No remarks yet</span>
-                      )}
-                    </div>
-                  </td>
-                  <td>{renderSLA(t.dueDate, t.status, t.isEscalated, t.isUrgent)}</td>
-                  <td>
-                    <select 
-                      className="status-select"
-                      value={t.status}
-                      onChange={(e) => handleStatusChange(t.id, e.target.value)}
-                    >
-                      <option value="Pending Admin Approval">Pending Admin Approval</option>
-                      <option value="Pending Student Confirmation">Pending Student Confirmation</option>
-                      <option value="Scheduled">Scheduled</option>
-                      <option value="Resolved">Resolved</option>
-                    </select>
-                  </td>
-                </tr>
-              ))
+                        <option value="Pending Admin Approval">Pending Admin Approval</option>
+                        <option value="Pending Student Confirmation">Pending Student Confirmation</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -377,21 +407,39 @@ export default function AdminPortal({ adminUser, onLogout }) {
           <div className="modal-card">
             <h3>Propose/Schedule Visit Time</h3>
             <p>Ticket: <strong>{activeTicket.ticketId}</strong> — {activeTicket.studentName}</p>
-            <div className="form-group">
-              <label>Visit Date & Time:</label>
+            <div className="form-group" style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', fontSize: '13px' }}>
+                Visit Date & Time:
+              </label>
               <input 
                 type="datetime-local" 
                 value={visitTime}
                 onChange={(e) => setVisitTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
-            <div className="form-group">
-              <label>Admin Note/Remark (Optional):</label>
+            <div className="form-group" style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', fontSize: '13px' }}>
+                Admin Note/Remark (Optional):
+              </label>
               <textarea 
                 rows="2"
                 placeholder="Reason for slot or instructions for student..."
                 value={adminRemarkInput}
                 onChange={(e) => setAdminRemarkInput(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             <div className="modal-actions">
