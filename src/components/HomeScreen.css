@@ -49,17 +49,17 @@
 }
 
 /* Page Header & Logo - Inline Layout (Logo at Start) */
+/* Page Header - Stays Centered */
 .page-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
+  text-align: center;
   margin-bottom: 2rem;
-  text-align: left;
 }
 
+/* Logo Positioned at Top-Left of Screen */
 .brand-logo {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
   width: 65px;
   height: 65px;
   object-fit: contain;
@@ -68,7 +68,6 @@
   padding: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease;
-  flex-shrink: 0;
 }
 
 .brand-logo:hover {
@@ -76,19 +75,18 @@
 }
 
 .page-header h1 {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   color: var(--header-title);
-  margin: 0;
-  line-height: 1.1;
+  margin: 0 0 0.5rem 0;
   letter-spacing: -0.03em;
 }
 
 .page-header .subtitle {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: var(--header-subtitle);
   font-weight: 400;
-  margin-top: 0.25rem;
+  margin: 0;
 }
 
 /* Auth Card - Frosted Glass */
