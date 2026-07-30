@@ -64,7 +64,7 @@ export default function Login({ onNavigate, setUser }) {
   };
 
   return (
-    <div className="home-container">
+    <div className={`home-container ${activeTab}`}>
       {/* 1. Header with VIT Bhopal Logo */}
       <div className="page-header">
         <img 
