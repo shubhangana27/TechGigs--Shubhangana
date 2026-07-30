@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage, auth } from '../firebase';
+import { db, storage } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Clock, AlertTriangle, CheckCircle, Upload, Plus, History } from 'lucide-react';
 import './StudentPortal.css';
 
 // Default SLA hours per category
@@ -74,7 +73,7 @@ export default function StudentPortal({ user, onLogout }) {
         ticketId,
         studentName: user.name || 'Student',
         studentRegistration: user.registrationNumber,
-        studentEmail: user.email,
+        studentEmail: user.email || '',
         hostelBlock,
         roomNumber,
         category,
@@ -107,19 +106,19 @@ export default function StudentPortal({ user, onLogout }) {
   // Helper for SLA Countdown / Status Display
   const getSlaStatus = (dueDateStr, status) => {
     if (status === 'Resolved') {
-      return <span className="badge badge-success"><CheckCircle size={14}/> Resolved</span>;
+      return <span className="badge badge-success">✓ Resolved</span>;
     }
     const now = new Date();
     const due = new Date(dueDateStr);
     const diffMs = due - now;
 
     if (diffMs <= 0) {
-      return <span className="badge badge-danger"><AlertTriangle size={14}/> SLA Breached (Escalated)</span>;
+      return <span className="badge badge-danger">⚠️ SLA Breached (Escalated)</span>;
     }
 
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return <span className="badge badge-warning"><Clock size={14}/> Expected in {hours}h {mins}m</span>;
+    return <span className="badge badge-warning">⏱️ Expected in {hours}h {mins}m</span>;
   };
 
   return (
@@ -137,13 +136,13 @@ export default function StudentPortal({ user, onLogout }) {
           className={activeTab === 'new' ? 'active' : ''} 
           onClick={() => setActiveTab('new')}
         >
-          <Plus size={18}/> New Complaint
+          ➕ New Complaint
         </button>
         <button 
           className={activeTab === 'history' ? 'active' : ''} 
           onClick={() => setActiveTab('history')}
         >
-          <History size={18}/> My Complaints ({tickets.length})
+          📋 My Complaints ({tickets.length})
         </button>
       </div>
 
@@ -234,7 +233,7 @@ export default function StudentPortal({ user, onLogout }) {
                   </div>
                   {t.photoUrl && (
                     <div className="ticket-image-container">
-                      <a href={t.photoUrl} target="_blank" rel="noreferrer">View Photo Proof</a>
+                      <a href={t.photoUrl} target="_blank" rel="noreferrer">🖼️ View Photo Proof</a>
                     </div>
                   )}
                 </div>

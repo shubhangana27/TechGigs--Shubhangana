@@ -76,7 +76,6 @@
 .form-group textarea,
 .form-group input {
   padding: 10px;
-  border: 1fr solid #cbd5e1;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
