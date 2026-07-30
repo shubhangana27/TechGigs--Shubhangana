@@ -1,35 +1,35 @@
 /* ==========================================================================
-   Design Tokens / Variables (Dark Navy Background + Crisp White Card)
+   Design Tokens & Variables
    ========================================================================== */
 :root {
-  /* Brand Accent Colors */
-  --primary: #2563eb;          /* Royal blue accent */
+  /* Brand Colors */
+  --primary: #2563eb;          
   --primary-hover: #1d4ed8;
   --primary-disabled: #93c5fd;
   
-  /* Rich Dark Blue Canvas Gradient */
-  --bg-dark-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #0a192f 100%);
+  /* Distinct High-Contrast Gradient (Dark Navy -> Deep Slate -> Blue Glow) */
+  --bg-dark-gradient: linear-gradient(135deg, #020617 0%, #0f172a 45%, #1e293b 85%, #1e40af 100%);
   
-  /* Bright Card Colors */
+  /* White High-Contrast Card Colors */
   --bg-card: #ffffff;
-  --text-dark: #0f172a;        /* Main dark text inside white card */
-  --text-muted: #64748b;       /* Muted text inside white card */
+  --text-dark: #0f172a;        
+  --text-muted: #64748b;       
   
-  /* Header Text */
+  /* Top Header Text Colors */
   --header-title: #ffffff;
-  --header-subtitle: #94a3b8;
+  --header-subtitle: #cbd5e1;
   
-  /* Elements */
+  /* UI Elements */
   --border-color: #cbd5e1;
   --border-focus: #2563eb;
   --radius-sm: 8px;
   --radius-md: 16px;
   
-  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.25);
 }
 
-/* Base Full-Screen Canvas */
+/* Full-Screen Canvas Container */
 .home-container {
   display: flex;
   flex-direction: column;
@@ -42,28 +42,29 @@
   box-sizing: border-box;
 }
 
-/* Page Header */
+/* Page Header (Title + Subtitle Above Card) */
 .page-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
 .page-header h1 {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: 800;
   color: var(--header-title);
-  margin: 0 0 0.4rem 0;
-  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .page-header .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--header-subtitle);
   font-weight: 500;
   margin: 0;
 }
 
-/* High-Contrast White Login Card */
+/* Clean White Card Box */
 .auth-card {
   background: var(--bg-card);
   padding: 2.5rem 2rem;
@@ -74,7 +75,7 @@
   box-sizing: border-box;
 }
 
-/* Centered instruction text */
+/* Centered Top Instruction Inside Card */
 .centered-instruction {
   text-align: center;
   font-size: 0.95rem;
@@ -113,7 +114,7 @@
   border-bottom-color: var(--primary);
 }
 
-/* Form Layout & Inputs */
+/* Form Groups & Inputs */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -152,7 +153,7 @@
   box-shadow: var(--shadow-focus);
 }
 
-/* Primary Submit Button */
+/* Action Button */
 .submit-btn {
   width: 100%;
   padding: 0.85rem;
@@ -180,7 +181,7 @@
   cursor: not-allowed;
 }
 
-/* Error Message */
+/* Error Banner */
 .error-message {
   background-color: #fef2f2;
   border: 1px solid #fecaca;
