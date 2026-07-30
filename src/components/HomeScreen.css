@@ -177,7 +177,6 @@
   font-size: 0.95rem;
   color: #ffffff; /* Dark text for light inputs */
   background-color: #ffffff;
-  outline: none;
   transition: all 0.25s ease;
 }
 
