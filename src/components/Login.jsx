@@ -1,36 +1,38 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import '../styles/Auth.css';
 
-export default function Login() {
-  const [role, setRole] = useState('student'); // 'student' or 'admin'
-  const [identifier, setIdentifier] = useState(''); // Reg Number or Admin ID
+export default function Login({ onNavigate }) {
+  const [role, setRole] = useState('student');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-
-    const formattedEmail = role === 'student'
-      ? `${identifier.trim().toLowerCase()}@student.vitbhopal.ac.in`
-      : `${identifier.trim().toLowerCase()}@admin.vitbhopal.ac.in`;
+    const formattedEmail = 
+      role === 'student'
+        ? `${identifier.trim().toLowerCase()}@student.vitbhopal.ac.in`
+        : `${identifier.trim().toLowerCase()}@admin.vitbhopal.ac.in`;
 
     try {
       await signInWithEmailAndPassword(auth, formattedEmail, password);
+      
+      // Navigate to portal based on role state passing down from App
       if (role === 'student') {
-        navigate('/student-portal');
+        onNavigate('student-portal');
       } else {
-        navigate('/admin-portal');
+        onNavigate('admin-portal');
       }
     } catch (err) {
       setError('Invalid credentials. Please check your details and try again.');
     }
   };
+
+ 
 
   return (
     <div className="auth-container">
