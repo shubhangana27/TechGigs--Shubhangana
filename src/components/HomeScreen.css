@@ -145,13 +145,13 @@
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
   color: #ffffff;
-  background-color: var(--glass-input-bg);
+  background-color: #ffffff;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .form-group input::placeholder {
-  color: #ffffff;
+  color: #64748b;
 }
 
 .form-group input:hover {
