@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import './StudentPortal.css';
 
 const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93';
@@ -25,9 +25,9 @@ export default function StudentPortal({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [tickets, setTickets] = useState([]);
 
-  // Modal / Prediction Confirmation State
-  const [showPredictionModal, setShowPredictionModal] = useState(false);
-  const [predictedDetails, setPredictedDetails] = useState(null);
+  // Time modification state for student modal
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [customTime, setCustomTime] = useState('');
 
   useEffect(() => {
     if (!user) return;
@@ -37,12 +37,11 @@ export default function StudentPortal({ user, onLogout }) {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedTickets = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+      const fetchedTickets = snapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
       }));
 
-      // Sort newest submission first
       fetchedTickets.sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
         const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
@@ -74,46 +73,24 @@ export default function StudentPortal({ user, onLogout }) {
     }
   };
 
-  // Pre-calculate resolution prediction and show Modal popup
-  const handlePreSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!gender || !hostelBlock || !wing || !roomNumber || !category || !description) {
       alert('Please fill out all required fields.');
       return;
     }
 
-    const slaHours = CATEGORY_SLA[category] || 24;
-    const dueDate = new Date();
-    dueDate.setHours(dueDate.getHours() + slaHours);
-
-    setPredictedDetails({
-      slaHours,
-      dueDate,
-      formattedDate: dueDate.toLocaleDateString(undefined, {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      }),
-      formattedTime: dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-
-    setShowPredictionModal(true);
-  };
-
-  // Submit to Firestore after user accepts the predicted timing
-  const confirmAndSubmitTicket = async () => {
-    setShowPredictionModal(false);
     setLoading(true);
-
     try {
       let photoUrl = '';
-
       if (file) {
         photoUrl = await uploadToImgBB(file);
       }
 
       const ticketId = `TICK-${Math.floor(100000 + Math.random() * 900000)}`;
+      const slaHours = CATEGORY_SLA[category] || 24;
+      const dueDate = new Date();
+      dueDate.setHours(dueDate.getHours() + slaHours);
 
       await addDoc(collection(db, 'tickets'), {
         ticketId,
@@ -127,16 +104,17 @@ export default function StudentPortal({ user, onLogout }) {
         category,
         description,
         photoUrl,
-        status: 'Unresolved',
-        slaHours: predictedDetails.slaHours,
-        dueDate: predictedDetails.dueDate.toISOString(),
+        status: 'Pending Admin Approval',
+        slaHours,
+        dueDate: dueDate.toISOString(),
+        proposedVisitTime: null,
+        adminRemarks: ['New ticket filed by student.'],
         isEscalated: false,
         createdAt: serverTimestamp()
       });
 
-      alert(`Grievance submitted successfully! Ticket ID: ${ticketId}`);
+      alert(`Grievance submitted successfully! Sent to Admin. Ticket ID: ${ticketId}`);
 
-      // Clear Form Fields
       setGender('');
       setHostelBlock('');
       setWing('');
@@ -144,7 +122,6 @@ export default function StudentPortal({ user, onLogout }) {
       setCategory('');
       setDescription('');
       setFile(null);
-      setPredictedDetails(null);
       setActiveTab('history');
     } catch (err) {
       console.error("Submission Error:", err);
@@ -154,29 +131,68 @@ export default function StudentPortal({ user, onLogout }) {
     }
   };
 
-  const getSlaStatus = (dueDateStr, status) => {
-    if (status === 'Resolved') {
-      return <span className="badge badge-success">✓ Resolved</span>;
-    }
-    const now = new Date();
-    const due = new Date(dueDateStr);
-    const diffMs = due - now;
+  // Student accepts the scheduled visit time
+  const handleAcceptTime = async (ticketDocId) => {
+    try {
+      const ticketRef = doc(db, 'tickets', ticketDocId);
+      const ticket = tickets.find(t => t.id === ticketDocId);
+      const newRemarks = [...(ticket.adminRemarks || []), `[Student Log]: Accepted visit time (${formatDisplayTime(ticket.proposedVisitTime)}).` ];
 
-    if (diffMs <= 0) {
-      return <span className="badge badge-danger">⚠️ SLA Breached (Escalated)</span>;
+      await updateDoc(ticketRef, {
+        status: 'Scheduled',
+        adminRemarks: newRemarks
+      });
+      alert('You have accepted the visit schedule.');
+    } catch (err) {
+      console.error('Acceptance error:', err);
+      alert('Failed to accept visit time.');
+    }
+  };
+
+  // Student submits a counter-proposed visit time
+  const handleCounterPropose = async () => {
+    if (!customTime) {
+      alert('Please select a valid date and time.');
+      return;
     }
 
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return <span className="badge badge-warning">⏱️ Expected in {hours}h {mins}m</span>;
+    try {
+      const ticketRef = doc(db, 'tickets', selectedTicket.id);
+      const newRemarks = [...(selectedTicket.adminRemarks || []), `[Student Log]: Requested modified visit time to ${formatDisplayTime(customTime)}.` ];
+
+      await updateDoc(ticketRef, {
+        status: 'Pending Admin Approval',
+        proposedVisitTime: customTime,
+        adminRemarks: newRemarks
+      });
+
+      alert('Requested visit time change submitted to admin.');
+      setSelectedTicket(null);
+      setCustomTime('');
+    } catch (err) {
+      console.error('Modification error:', err);
+      alert('Failed to send modified schedule.');
+    }
+  };
+
+  const formatDisplayTime = (isoString) => {
+    if (!isoString) return 'Not Scheduled Yet';
+    const d = new Date(isoString);
+    return `${d.toLocaleDateString()} at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const renderStatusBadge = (t) => {
+    if (t.status === 'Resolved') return <span className="badge badge-success">✓ Resolved</span>;
+    if (t.status === 'Pending Admin Approval') return <span className="badge badge-warning">⏳ Awaiting Admin Review</span>;
+    if (t.status === 'Pending Student Confirmation') return <span className="badge badge-warning">📅 Action Required: Review Visit Time</span>;
+    if (t.status === 'Scheduled') return <span className="badge badge-success">🗓️ Scheduled</span>;
+    return <span className="badge badge-warning">{t.status}</span>;
   };
 
   const formatDateTime = (timestamp) => {
     if (!timestamp?.toDate) return 'Just now';
     const dateObj = timestamp.toDate();
-    const dateStr = dateObj.toLocaleDateString();
-    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return `${dateStr} at ${timeStr}`;
+    return `${dateObj.toLocaleDateString()} at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
 
   return (
@@ -207,8 +223,7 @@ export default function StudentPortal({ user, onLogout }) {
       {activeTab === 'new' ? (
         <div className="card form-card">
           <h3>Raise a New Maintenance Request</h3>
-          <form onSubmit={handlePreSubmit}>
-            
+          <form onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="form-group">
                 <label>Boys/Girls</label>
@@ -218,7 +233,7 @@ export default function StudentPortal({ user, onLogout }) {
                   <option value="Girls">Girls</option>
                 </select>
               </div>
-                
+
               <div className="form-group">
                 <label>Hostel Block</label>
                 <select value={hostelBlock} onChange={(e) => setHostelBlock(e.target.value)} required>
@@ -296,7 +311,7 @@ export default function StudentPortal({ user, onLogout }) {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Processing...' : 'Submit Complaint'}
+              {loading ? 'Uploading & Submitting...' : 'Submit Complaint'}
             </button>
           </form>
         </div>
@@ -314,9 +329,41 @@ export default function StudentPortal({ user, onLogout }) {
                       <span className="ticket-id">{t.ticketId}</span>
                       <span className="ticket-category">{t.category}</span>
                     </div>
-                    {getSlaStatus(t.dueDate, t.status)}
+                    {renderStatusBadge(t)}
                   </div>
                   <p className="ticket-desc">{t.description}</p>
+                  
+                  {/* Visit Time Detail Panel */}
+                  <div className="schedule-panel">
+                    <strong>Scheduled Visit Time: </strong> 
+                    <span>{formatDisplayTime(t.proposedVisitTime)}</span>
+                  </div>
+
+                  {/* Student Decision Section */}
+                  {t.status === 'Pending Student Confirmation' && (
+                    <div className="action-panel">
+                      <p>⚠️ Admin proposed a visit schedule. Please confirm or request an alternate time:</p>
+                      <button className="confirm-btn" onClick={() => handleAcceptTime(t.id)}>
+                        ✓ Accept Proposed Time
+                      </button>
+                      <button className="modify-btn" onClick={() => setSelectedTicket(t)}>
+                        ✏️ Modify Time
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Audit Remarks Log */}
+                  {t.adminRemarks && t.adminRemarks.length > 0 && (
+                    <div className="remarks-log">
+                      <small><strong>Activity Log:</strong></small>
+                      <ul>
+                        {t.adminRemarks.map((remark, idx) => (
+                          <li key={idx}><small>{remark}</small></li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   <div className="ticket-meta">
                     <span>📍 {t.gender ? `${t.gender}'s` : ''} {t.hostelBlock}, Wing {t.wing}, Room {t.roomNumber}</span>
                     <span>🕒 Filed: {formatDateTime(t.createdAt)}</span>
@@ -333,56 +380,23 @@ export default function StudentPortal({ user, onLogout }) {
         </div>
       )}
 
-      {/* Prediction & Acceptance Modal */}
-      {showPredictionModal && predictedDetails && (
+      {/* Modify Time Modal */}
+      {selectedTicket && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <div className="modal-header">
-              <h3>🗓️ Service Schedule Estimate</h3>
+            <h3>Propose Alternate Visit Time</h3>
+            <p>Ticket: <strong>{selectedTicket.ticketId}</strong> ({selectedTicket.category})</p>
+            <div className="form-group">
+              <label>Select preferred Date & Time:</label>
+              <input 
+                type="datetime-local" 
+                value={customTime}
+                onChange={(e) => setCustomTime(e.target.value)}
+              />
             </div>
-
-            <p className="modal-subtext">
-              Based on your selection of <strong>{category}</strong>, here is the predicted timeline for resolution:
-            </p>
-
-            <div className="prediction-box">
-              <div className="detail-row">
-                <span>Category SLA:</span>
-                <strong>{predictedDetails.slaHours} Hours</strong>
-              </div>
-              <div className="detail-row">
-                <span>Expected Completion Date:</span>
-                <strong>{predictedDetails.formattedDate}</strong>
-              </div>
-              <div className="detail-row">
-                <span>Estimated Time:</span>
-                <strong>{predictedDetails.formattedTime}</strong>
-              </div>
-              <div className="detail-row">
-                <span>Location:</span>
-                <span>{hostelBlock}, Wing {wing}, Room {roomNumber}</span>
-              </div>
-            </div>
-
-            <p className="modal-disclaimer">
-              Do you accept this estimated time slot for maintenance staff to visit?
-            </p>
-
             <div className="modal-actions">
-              <button 
-                type="button" 
-                onClick={() => setShowPredictionModal(false)}
-                className="modal-btn-cancel"
-              >
-                Modify / Cancel
-              </button>
-              <button 
-                type="button" 
-                onClick={confirmAndSubmitTicket}
-                className="modal-btn-confirm"
-              >
-                Accept & File Ticket
-              </button>
+              <button className="modal-btn-cancel" onClick={() => setSelectedTicket(null)}>Cancel</button>
+              <button className="modal-btn-confirm" onClick={handleCounterPropose}>Submit New Schedule</button>
             </div>
           </div>
         </div>

@@ -214,3 +214,75 @@
   font-size: 0.8rem;
   font-weight: 600;
 }
+
+/* Schedule and Remarks Styling */
+.schedule-panel {
+  background: #f1f5f9;
+  border-left: 4px solid #2563eb;
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.action-panel {
+  background: #fffbe3;
+  border: 1px solid #fde047;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.action-panel p {
+  margin: 0 0 8px 0;
+  font-size: 0.88rem;
+  color: #854d0e;
+}
+
+.confirm-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.modify-btn {
+  background: #ca8a04;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.remarks-log, .remarks-column {
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  background: #fafafa;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.remarks-log ul, .remarks-column ul {
+  padding-left: 16px;
+  margin: 4px 0;
+}
+
+.schedule-btn {
+  margin-top: 6px;
+  display: block;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}

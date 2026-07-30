@@ -9,6 +9,11 @@ export default function AdminPortal({ adminUser, onLogout }) {
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Modal / Scheduling state
+  const [activeTicket, setActiveTicket] = useState(null);
+  const [visitTime, setVisitTime] = useState('');
+  const [adminRemarkInput, setAdminRemarkInput] = useState('');
+
   // Real-time listener for all tickets
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'tickets'), (snapshot) => {
@@ -30,7 +35,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
         };
       });
 
-      // Strict Escalation Sorting Logic
+      // Escalation and Priority Sorting
       fetched.sort((a, b) => {
         const aIsResolved = a.status === 'Resolved';
         const bIsResolved = b.status === 'Resolved';
@@ -61,10 +66,50 @@ export default function AdminPortal({ adminUser, onLogout }) {
     return () => unsubscribe();
   }, []);
 
+  // Propose or Update Visit Time from Admin side
+  const handleSetVisitSchedule = async () => {
+    if (!visitTime) {
+      alert('Please choose a date and time for the visit.');
+      return;
+    }
+
+    try {
+      const ticketRef = doc(db, 'tickets', activeTicket.id);
+      const formattedVisit = new Date(visitTime).toLocaleString();
+      
+      const newRemark = adminRemarkInput 
+        ? `[Admin Log]: Scheduled visit for ${formattedVisit}. Note: ${adminRemarkInput}`
+        : `[Admin Log]: Scheduled visit for ${formattedVisit}.`;
+
+      const existingRemarks = activeTicket.adminRemarks || [];
+
+      await updateDoc(ticketRef, {
+        proposedVisitTime: visitTime,
+        status: 'Pending Student Confirmation',
+        adminRemarks: [...existingRemarks, newRemark]
+      });
+
+      alert('Visit time updated and sent to student for confirmation!');
+      setActiveTicket(null);
+      setVisitTime('');
+      setAdminRemarkInput('');
+    } catch (err) {
+      console.error('Failed to update visit schedule:', err);
+      alert('Could not update schedule. Try again.');
+    }
+  };
+
+  // Status updates directly (e.g. Marking as Resolved)
   const handleStatusChange = async (ticketDocId, newStatus) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketDocId);
-      await updateDoc(ticketRef, { status: newStatus });
+      const ticket = tickets.find(t => t.id === ticketDocId);
+      const existingRemarks = ticket.adminRemarks || [];
+
+      await updateDoc(ticketRef, { 
+        status: newStatus,
+        adminRemarks: [...existingRemarks, `[Admin Log]: Status changed directly to ${newStatus}.`]
+      });
     } catch (err) {
       console.error('Failed to update status:', err);
       alert('Could not update status. Please try again.');
@@ -94,7 +139,6 @@ export default function AdminPortal({ adminUser, onLogout }) {
     return <span className="badge badge-active">⏱️ {hours}h {mins}m remaining</span>;
   };
 
-  // Helper function to render Date + Time
   const renderSubmissionTime = (timestamp) => {
     if (!timestamp?.toDate) return 'N/A';
     const dateObj = timestamp.toDate();
@@ -154,8 +198,9 @@ export default function AdminPortal({ adminUser, onLogout }) {
           <label>Filter Status:</label>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="All">All Statuses</option>
-            <option value="Unresolved">Unresolved</option>
-            <option value="In Progress">In Progress</option>
+            <option value="Pending Admin Approval">Pending Admin Approval</option>
+            <option value="Pending Student Confirmation">Pending Student Confirmation</option>
+            <option value="Scheduled">Scheduled</option>
             <option value="Resolved">Resolved</option>
             <option value="Escalated">🔴 Escalated Only</option>
           </select>
@@ -178,18 +223,19 @@ export default function AdminPortal({ adminUser, onLogout }) {
             <tr>
               <th>Priority / Ticket ID</th>
               <th>Date & Time Filed</th>
-              <th>Location (Gender / Block / Wing / Room)</th>
+              <th>Location</th>
               <th>Student Info</th>
               <th>Category & Description</th>
-              <th>Photo Proof</th>
-              <th>SLA Escalation Status</th>
+              <th>Schedule / Visit Time</th>
+              <th>Activity Remarks</th>
+              <th>SLA Status</th>
               <th>Action / Change Status</th>
             </tr>
           </thead>
           <tbody>
             {filteredTickets.length === 0 ? (
               <tr>
-                <td colSpan="8" className="no-records">No grievances match current filters.</td>
+                <td colSpan="9" className="no-records">No grievances match current filters.</td>
               </tr>
             ) : (
               filteredTickets.map((t) => (
@@ -229,25 +275,53 @@ export default function AdminPortal({ adminUser, onLogout }) {
                   <td>
                     <span className="category-pill">{t.category}</span>
                     <p className="table-desc">{t.description}</p>
-                  </td>
-                  <td>
-                    {t.photoUrl ? (
+                    {t.photoUrl && (
                       <a href={t.photoUrl} target="_blank" rel="noreferrer" className="photo-link">
                         🖼️ View Photo
                       </a>
-                    ) : (
-                      <span className="text-muted">No Attachment</span>
                     )}
+                  </td>
+                  <td>
+                    <div className="schedule-info">
+                      {t.proposedVisitTime ? (
+                        <strong>{new Date(t.proposedVisitTime).toLocaleString()}</strong>
+                      ) : (
+                        <span className="text-muted">Unscheduled</span>
+                      )}
+                      <button 
+                        className="schedule-btn"
+                        onClick={() => {
+                          setActiveTicket(t);
+                          setVisitTime(t.proposedVisitTime || '');
+                        }}
+                      >
+                        📅 Set/Change Visit
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="remarks-column">
+                      {t.adminRemarks && t.adminRemarks.length > 0 ? (
+                        <ul>
+                          {t.adminRemarks.map((rem, i) => (
+                            <li key={i}><small>{rem}</small></li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-muted">No remarks yet</span>
+                      )}
+                    </div>
                   </td>
                   <td>{renderSLA(t.dueDate, t.status, t.isEscalated, t.isUrgent)}</td>
                   <td>
                     <select 
-                      className={`status-select ${t.status.toLowerCase().replace(' ', '-')}`}
+                      className="status-select"
                       value={t.status}
                       onChange={(e) => handleStatusChange(t.id, e.target.value)}
                     >
-                      <option value="Unresolved">Unresolved</option>
-                      <option value="In Progress">In Progress</option>
+                      <option value="Pending Admin Approval">Pending Admin Approval</option>
+                      <option value="Pending Student Confirmation">Pending Student Confirmation</option>
+                      <option value="Scheduled">Scheduled</option>
                       <option value="Resolved">Resolved</option>
                     </select>
                   </td>
@@ -257,6 +331,37 @@ export default function AdminPortal({ adminUser, onLogout }) {
           </tbody>
         </table>
       </div>
+
+      {/* Visit Scheduling Modal */}
+      {activeTicket && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3>Propose/Schedule Visit Time</h3>
+            <p>Ticket: <strong>{activeTicket.ticketId}</strong> — {activeTicket.studentName}</p>
+            <div className="form-group">
+              <label>Visit Date & Time:</label>
+              <input 
+                type="datetime-local" 
+                value={visitTime}
+                onChange={(e) => setVisitTime(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Admin Note/Remark (Optional):</label>
+              <textarea 
+                rows="2"
+                placeholder="Reason for slot or instructions for student..."
+                value={adminRemarkInput}
+                onChange={(e) => setAdminRemarkInput(e.target.value)}
+              />
+            </div>
+            <div className="modal-actions">
+              <button className="modal-btn-cancel" onClick={() => setActiveTicket(null)}>Cancel</button>
+              <button className="modal-btn-confirm" onClick={handleSetVisitSchedule}>Notify Student</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
