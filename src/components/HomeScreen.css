@@ -218,16 +218,14 @@
 }
 
 .brand-logo {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  border-radius: 50%;
+  width: 75px;
+  height: 75px;
+  object-fit: contain; /* Prevents stretching */
+  border-radius: 12px; /* Subtle rounded corners instead of 50% circle if it's rectangular */
   background: #ffffff;
   padding: 6px;
   margin-bottom: 1rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
 }
 
 .brand-logo:hover {
