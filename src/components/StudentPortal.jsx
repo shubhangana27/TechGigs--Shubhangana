@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase'; // Firebase Storage imports REMOVED
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './StudentPortal.css';
 
-// Default SLA hours per category
+// Get your API key free from https://api.imgbb.com/
+const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93'; // Replace with your actual ImgBB API key
+
 const CATEGORY_SLA = {
-  Electricity: 12, // High priority
+  Electricity: 12,
   Plumbing: 24,
   Carpentry: 48,
   Internet: 12,
@@ -14,7 +15,7 @@ const CATEGORY_SLA = {
 };
 
 export default function StudentPortal({ user, onLogout }) {
-  const [activeTab, setActiveTab] = useState('new'); // 'new' or 'history'
+  const [activeTab, setActiveTab] = useState('new');
   const [hostelBlock, setHostelBlock] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
   const [category, setCategory] = useState('');
@@ -23,7 +24,6 @@ export default function StudentPortal({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [tickets, setTickets] = useState([]);
 
-  // Fetch tickets raised by current student
   useEffect(() => {
     if (!user) return;
     const q = query(
@@ -37,12 +37,31 @@ export default function StudentPortal({ user, onLogout }) {
         ...doc.data()
       }));
       setTickets(fetchedTickets);
+    }, (error) => {
+      console.error("Firestore read error:", error);
     });
 
     return () => unsubscribe();
   }, [user]);
 
-  // Handle Form Submission
+  // Upload image to ImgBB
+  const uploadToImgBB = async (imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      return data.data.url; // Direct URL to uploaded image
+    } else {
+      throw new Error(data.error?.message || 'Failed to upload image to ImgBB');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!hostelBlock || !roomNumber || !category || !description) {
@@ -54,16 +73,12 @@ export default function StudentPortal({ user, onLogout }) {
     try {
       let photoUrl = '';
 
-      // Upload image if selected
+      // Upload image via ImgBB API if file selected
       if (file) {
-        const fileRef = ref(storage, `complaints/${Date.now()}_${file.name}`);
-        await uploadBytes(fileRef, file);
-        photoUrl = await getDownloadURL(fileRef);
+        photoUrl = await uploadToImgBB(file);
       }
 
-      // Generate Ticket ID
       const ticketId = `TICK-${Math.floor(100000 + Math.random() * 900000)}`;
-      
       const slaHours = CATEGORY_SLA[category] || 24;
       const dueDate = new Date();
       dueDate.setHours(dueDate.getHours() + slaHours);
@@ -79,7 +94,7 @@ export default function StudentPortal({ user, onLogout }) {
         category,
         description,
         photoUrl,
-        status: 'Unresolved', // 'Unresolved' | 'In Progress' | 'Resolved'
+        status: 'Unresolved',
         slaHours,
         dueDate: dueDate.toISOString(),
         isEscalated: false,
@@ -88,7 +103,6 @@ export default function StudentPortal({ user, onLogout }) {
 
       alert(`Grievance submitted successfully! Ticket ID: ${ticketId}`);
       
-      // Reset form
       setHostelBlock('');
       setRoomNumber('');
       setCategory('');
@@ -96,14 +110,13 @@ export default function StudentPortal({ user, onLogout }) {
       setFile(null);
       setActiveTab('history');
     } catch (err) {
-      console.error("Error submitting ticket: ", err);
-      alert('Failed to submit complaint. Please try again.');
+      console.error("Submission Error:", err);
+      alert(`Error submitting complaint: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper for SLA Countdown / Status Display
   const getSlaStatus = (dueDateStr, status) => {
     if (status === 'Resolved') {
       return <span className="badge badge-success">✓ Resolved</span>;
@@ -206,7 +219,7 @@ export default function StudentPortal({ user, onLogout }) {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Complaint'}
+              {loading ? 'Uploading & Submitting...' : 'Submit Complaint'}
             </button>
           </form>
         </div>
