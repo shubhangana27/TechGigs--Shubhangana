@@ -151,6 +151,7 @@ html, body {
   margin-bottom: 14px;
   display: flex;
   flex-direction: column;
+  color:#0000;
 }
 
 .form-group label {
@@ -177,7 +178,7 @@ html, body {
 .form-group textarea:focus,
 .form-group input:focus {
   border-color: #2563eb;
-  background-color: #ffffff;
+  background-color: #0000;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
