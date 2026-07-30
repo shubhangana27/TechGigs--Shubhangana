@@ -162,21 +162,24 @@
   text-align: left;
 }
 
+/* Pure White & High Contrast Form Labels */
 .form-group label {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #ffffff;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-/* Ensure text typed inside white inputs is dark and easy to read */
+/* Input Fields - Dark slate text inside white box */
 .form-group input {
   padding: 0.8rem 1rem;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
-  color: #ffffff; /* Dark text for light inputs */
+  color: #0f172a; /* Dark text so typed input is easily readable inside white boxes */
   background-color: #ffffff;
+  outline: none;
   transition: all 0.25s ease;
 }
 
@@ -192,13 +195,13 @@
 .home-container.student .form-group input:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #ffffff;
 }
 
 .home-container.admin .form-group input:focus {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #ffffff;
 }
 
 /* Submit Button Accent Transition */
