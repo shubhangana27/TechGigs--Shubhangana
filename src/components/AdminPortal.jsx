@@ -68,14 +68,19 @@ export default function AdminPortal({ adminUser, onLogout }) {
     return <span className="badge badge-active">⏱️ {hours}h {mins}m remaining</span>;
   };
 
-  // Filter queue items
+  // Filter queue items (includes Block, Wing, Room, Name, Reg No, and ID in search)
   const filteredTickets = tickets.filter((t) => {
     const matchCategory = categoryFilter === 'All' || t.category === categoryFilter;
     const matchStatus = statusFilter === 'All' || 
                          (statusFilter === 'Escalated' ? t.isEscalated : t.status === statusFilter);
-    const matchSearch = t.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        t.studentRegistration.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        t.studentName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const searchLower = searchTerm.toLowerCase();
+    const matchSearch = (t.ticketId || '').toLowerCase().includes(searchLower) ||
+                        (t.studentRegistration || '').toLowerCase().includes(searchLower) ||
+                        (t.studentName || '').toLowerCase().includes(searchLower) ||
+                        (t.hostelBlock || '').toLowerCase().includes(searchLower) ||
+                        (t.wing || '').toLowerCase().includes(searchLower) ||
+                        (t.roomNumber || '').toLowerCase().includes(searchLower);
 
     return matchCategory && matchStatus && matchSearch;
   });
@@ -118,7 +123,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
         <div className="filter-group search-group">
           <input 
             type="text" 
-            placeholder="Search Ticket ID or Reg No..." 
+            placeholder="Search Ticket, Reg No, Block, Wing..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -132,7 +137,7 @@ export default function AdminPortal({ adminUser, onLogout }) {
             <tr>
               <th>Ticket ID</th>
               <th>Date</th>
-              <th>Block / Room</th>
+              <th>Location (Gender / Block / Wing / Room)</th>
               <th>Student Info</th>
               <th>Category & Description</th>
               <th>Photo Proof</th>
@@ -155,8 +160,9 @@ export default function AdminPortal({ adminUser, onLogout }) {
                     {t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : 'N/A'}
                   </td>
                   <td>
-                    <strong>{t.hostelBlock}</strong><br />
-                    <small>Room {t.roomNumber}</small>
+                    <strong>{t.gender ? `${t.gender}'s Hostel` : 'Hostel'}</strong><br />
+                    <span>{t.hostelBlock || 'N/A'} {t.wing ? `• Wing ${t.wing}` : ''}</span><br />
+                    <small className="text-muted">Room {t.roomNumber || 'N/A'}</small>
                   </td>
                   <td>
                     <div><strong>{t.studentName}</strong></div>
