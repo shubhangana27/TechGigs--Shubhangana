@@ -204,16 +204,21 @@ export default function StudentPortal({ user, onLogout }) {
     return `${dateObj.toLocaleDateString()} at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   };
 
+  // Extract student registration number or fallback ID dynamically
+  const studentRegNo = user?.registrationNumber || user?.idInput || 'Student';
+
   return (
     <div className="portal-container">
+      {/* Top Header Section */}
       <header className="portal-header">
-        <div>
-          <h2>Student Grievance Portal</h2>
-          <p>Logged in as: <strong>{user?.name || user?.registrationNumber}</strong></p>
+        <div className="header-titles">
+          <h1>Student Portal</h1>
+          <p className="welcome-tag">Welcome, <strong>{studentRegNo}</strong>!</p>
         </div>
         <button className="logout-btn" onClick={onLogout}>Logout</button>
       </header>
 
+      {/* Tab Navigation Controls */}
       <div className="tab-navigation">
         <button 
           className={activeTab === 'new' ? 'active' : ''} 
@@ -229,100 +234,107 @@ export default function StudentPortal({ user, onLogout }) {
         </button>
       </div>
 
+      {/* Main Content Area */}
       {activeTab === 'new' ? (
-        <div className="card form-card">
-          <h3>Raise a New Maintenance Request</h3>
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
+        <div className="form-card-container">
+          <div className="card form-card">
+            <div className="card-header">
+              <h3>Raise a Maintenance Request</h3>
+              <p>Fill out the details below to log your grievance.</p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Hostel Type</label>
+                  <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                    <option value="">-- Select --</option>
+                    <option value="Boys">Boys Hostel</option>
+                    <option value="Girls">Girls Hostel</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Hostel Block</label>
+                  <select value={hostelBlock} onChange={(e) => setHostelBlock(e.target.value)} required>
+                    <option value="">-- Select Block --</option>
+                    <option value="Block 1">Block 1</option>
+                    <option value="Block 2">Block 2</option>
+                    <option value="Block 3">Block 3</option>
+                    <option value="Block 4">Block 4</option>
+                    <option value="Block 5">Block 5</option>
+                    <option value="Block 6">Block 6</option>
+                    <option value="Block 7">Block 7</option>
+                    <option value="Block 8">Block 8</option>
+                    <option value="Block R">Recreational Block</option>
+                    <option value="Block S">Special Block</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Wing</label>
+                  <select value={wing} onChange={(e) => setWing(e.target.value)} required>
+                    <option value="">-- Select Wing --</option>
+                    <option value="A">Wing A</option>
+                    <option value="B">Wing B</option>
+                    <option value="C">Wing C</option>
+                    <option value="D">Wing D</option>
+                    <option value="E">Wing E</option>
+                    <option value="F">Wing F</option>
+                    <option value="G">Wing G</option>
+                    <option value="H">Wing H</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Room Number</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 302"
+                    value={roomNumber}
+                    onChange={(e) => setRoomNumber(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
-                <label>Boys/Girls</label>
-                <select value={gender} onChange={(e) => setGender(e.target.value)} required>
-                  <option value="">-- Select--</option>
-                  <option value="Boys">Boys</option>
-                  <option value="Girls">Girls</option>
+                <label>Grievance Category</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+                  <option value="">-- Select Category --</option>
+                  <option value="Electricity">Electricity (SLA: 12h)</option>
+                  <option value="Plumbing">Plumbing (SLA: 24h)</option>
+                  <option value="Carpentry">Carpentry (SLA: 48h)</option>
+                  <option value="Internet">Internet / Wi-Fi (SLA: 12h)</option>
+                  <option value="Cleaning">Cleaning / Housekeeping (SLA: 8h)</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label>Hostel Block</label>
-                <select value={hostelBlock} onChange={(e) => setHostelBlock(e.target.value)} required>
-                  <option value="">-- Select Block --</option>
-                  <option value="Block 1">Block 1</option>
-                  <option value="Block 2">Block 2</option>
-                  <option value="Block 3">Block 3</option>
-                  <option value="Block 4">Block 4</option>
-                  <option value="Block 5">Block 5</option>
-                  <option value="Block 6">Block 6</option>
-                  <option value="Block 7">Block 7</option>
-                  <option value="Block 8">Block 8</option>
-                  <option value="Block R">Recreational</option>
-                  <option value="Block S">Special</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Wing</label>
-                <select value={wing} onChange={(e) => setWing(e.target.value)} required>
-                  <option value="">-- Select--</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="G">G</option>
-                  <option value="H">H</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Room Number</label>
-                <input
-                  type="text"
-                  placeholder="Enter room number"
-                  value={roomNumber}
-                  onChange={(e) => setRoomNumber(e.target.value)}
+                <label>Description of Issue</label>
+                <textarea 
+                  rows="3" 
+                  placeholder="Describe the problem clearly..." 
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </div>
-            </div>
 
-            <div className="form-group">
-              <label>Grievance Category</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-                <option value="">-- Select Category --</option>
-                <option value="Electricity">Electricity (SLA: 12h)</option>
-                <option value="Plumbing">Plumbing (SLA: 24h)</option>
-                <option value="Carpentry">Carpentry (SLA: 48h)</option>
-                <option value="Internet">Internet/Wi-Fi (SLA: 12h)</option>
-                <option value="Cleaning">Cleaning/Housekeeping (SLA: 8h)</option>
-              </select>
-            </div>
+              <div className="form-group">
+                <label>Upload Photo Proof (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setFile(e.target.files[0])} 
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Description of Issue</label>
-              <textarea 
-                rows="4" 
-                placeholder="Describe the problem clearly..." 
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Upload Photo Proof</label>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={(e) => setFile(e.target.files[0])} 
-              />
-            </div>
-
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Analyzing with AI & Submitting...' : 'Submit Complaint'}
-            </button>
-          </form>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Analyzing with AI & Submitting...' : 'Submit Complaint'}
+              </button>
+            </form>
+          </div>
         </div>
       ) : (
         <div className="card history-card">
