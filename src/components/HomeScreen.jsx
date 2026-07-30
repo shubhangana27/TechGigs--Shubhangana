@@ -73,9 +73,15 @@ export default function Login({ onNavigate, setUser }) {
 
   return (
     <div className="home-container">
+      {/* Top Heading Area */}
+      <div className="page-header">
+        <h1>Welcome to V-Help</h1>
+        <p className="subtitle">Hostel Grievance Portal</p>
+      </div>
+
+      {/* Main Login Card */}
       <div className="auth-card">
-        <h2>Campus Grievance Tracker</h2>
-        <p className="subtitle">Select your portal to log in</p>
+        <p className="centered-instruction">Select your portal to log in</p>
 
         {/* Tab Selection */}
         <div className="tab-group">

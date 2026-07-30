@@ -1,240 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>V-Help | Hostel Grievance Portal</title>
-  <style>
-    /* ==========================================================================
-       Design Tokens / Variables (Dark Navy Background + Crisp White Card)
-       ========================================================================== */
-    :root {
-      /* Brand Accent Colors */
-      --primary: #2563eb;          /* Royal blue accent */
-      --primary-hover: #1d4ed8;
-      --primary-disabled: #93c5fd;
-      
-      /* Rich Dark Blue Canvas Gradient */
-      --bg-dark-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #0a192f 100%);
-      
-      /* Bright Card Colors */
-      --bg-card: #ffffff;
-      --text-dark: #0f172a;        /* Main dark text inside white card */
-      --text-muted: #64748b;       /* Muted text inside white card */
-      
-      /* Header Text */
-      --header-title: #ffffff;
-      --header-subtitle: #94a3b8;
-      
-      /* Elements */
-      --border-color: #cbd5e1;
-      --border-focus: #2563eb;
-      --radius-sm: 8px;
-      --radius-md: 16px;
-      
-      --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-      --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.2);
-    }
+/* ==========================================================================
+   Design Tokens / Variables (Dark Navy Background + Crisp White Card)
+   ========================================================================== */
+:root {
+  /* Brand Accent Colors */
+  --primary: #2563eb;          /* Royal blue accent */
+  --primary-hover: #1d4ed8;
+  --primary-disabled: #93c5fd;
+  
+  /* Rich Dark Blue Canvas Gradient */
+  --bg-dark-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #0a192f 100%);
+  
+  /* Bright Card Colors */
+  --bg-card: #ffffff;
+  --text-dark: #0f172a;        /* Main dark text inside white card */
+  --text-muted: #64748b;       /* Muted text inside white card */
+  
+  /* Header Text */
+  --header-title: #ffffff;
+  --header-subtitle: #94a3b8;
+  
+  /* Elements */
+  --border-color: #cbd5e1;
+  --border-focus: #2563eb;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
 
-    /* Base Full-Screen Canvas */
-    .home-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: var(--bg-dark-gradient);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      padding: 2rem 1rem;
-      box-sizing: border-box;
-    }
+/* Base Full-Screen Canvas */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-dark-gradient);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
 
-    /* Page Header */
-    .page-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
 
-    .page-header h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
-      color: var(--header-title);
-      margin: 0 0 0.4rem 0;
-      letter-spacing: -0.02em;
-    }
+.page-header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--header-title);
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.02em;
+}
 
-    .page-header .subtitle {
-      font-size: 1.1rem;
-      color: var(--header-subtitle);
-      font-weight: 500;
-      margin: 0;
-    }
+.page-header .subtitle {
+  font-size: 1.1rem;
+  color: var(--header-subtitle);
+  font-weight: 500;
+  margin: 0;
+}
 
-    /* Light Card Surface */
-    .auth-card {
-      background: var(--bg-card);
-      padding: 2.5rem 2rem;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      width: 100%;
-      max-width: 400px;
-      box-sizing: border-box;
-    }
+/* High-Contrast White Login Card */
+.auth-card {
+  background: var(--bg-card);
+  padding: 2.5rem 2rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
 
-    /* Centered instruction text */
-    .centered-instruction {
-      text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin: 0 0 1.5rem 0;
-    }
+/* Centered instruction text */
+.centered-instruction {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 1.5rem 0;
+}
 
-    /* Navigation Tabs */
-    .tab-group {
-      display: flex;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #f1f5f9;
-    }
+/* Navigation Tabs */
+.tab-group {
+  display: flex;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+}
 
-    .tab-btn {
-      flex: 1;
-      padding: 0.75rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      transition: all 0.2s ease;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-    }
+.tab-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
 
-    .tab-btn:hover {
-      color: var(--text-dark);
-    }
+.tab-btn:hover {
+  color: var(--text-dark);
+}
 
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
 
-    /* Form Layout & Inputs */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 1.25rem;
-      text-align: left;
-    }
+/* Form Layout & Inputs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
 
-    .form-group label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-      color: var(--text-dark);
-    }
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--text-dark);
+}
 
-    .form-group input {
-      padding: 0.75rem 0.9rem;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      font-size: 0.95rem;
-      color: var(--text-dark);
-      background-color: #ffffff;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
+.form-group input {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .form-group input::placeholder {
-      color: #94a3b8;
-    }
+.form-group input::placeholder {
+  color: #94a3b8;
+}
 
-    .form-group input:hover {
-      border-color: #94a3b8;
-    }
+.form-group input:hover {
+  border-color: #94a3b8;
+}
 
-    .form-group input:focus {
-      border-color: var(--border-focus);
-      box-shadow: var(--shadow-focus);
-    }
+.form-group input:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+}
 
-    /* Primary Submit Button */
-    .submit-btn {
-      width: 100%;
-      padding: 0.85rem;
-      margin-top: 0.5rem;
-      background-color: var(--primary);
-      color: #ffffff;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-    }
+/* Primary Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 0.5rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
 
-    .submit-btn:hover:not(:disabled) {
-      background-color: var(--primary-hover);
-    }
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
 
-    .submit-btn:active:not(:disabled) {
-      transform: scale(0.99);
-    }
+.submit-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
 
-    .submit-btn:disabled {
-      background-color: var(--primary-disabled);
-      cursor: not-allowed;
-    }
+.submit-btn:disabled {
+  background-color: var(--primary-disabled);
+  cursor: not-allowed;
+}
 
-    /* Error Message */
-    .error-message {
-      background-color: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #dc2626;
-      padding: 0.65rem 0.85rem;
-      border-radius: var(--radius-sm);
-      margin-bottom: 1.25rem;
-      font-size: 0.85rem;
-      text-align: left;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="home-container">
-    <!-- Top Heading Area -->
-    <div class="page-header">
-      <h1>Welcome to V-Help</h1>
-      <p class="subtitle">Hostel Grievance Portal</p>
-    </div>
-
-    <!-- Main Login Card -->
-    <div class="auth-card">
-      <p class="centered-instruction">Select your portal to log in</p>
-      
-      <!-- Tab Controls -->
-      <div class="tab-group">
-        <button class="tab-btn active">Student Login</button>
-        <button class="tab-btn">Admin Login</button>
-      </div>
-
-      <!-- Login Form -->
-      <form onsubmit="return false;">
-        <div class="form-group">
-          <label for="regNo">Registration Number</label>
-          <input type="text" id="regNo" placeholder="e.g. 24BAI10038" required />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter password" required />
-        </div>
-
-        <button type="submit" class="submit-btn">Login as Student</button>
-      </form>
-    </div>
-  </div>
-
-</body>
-</html>
+/* Error Message */
+.error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  text-align: left;
+}
