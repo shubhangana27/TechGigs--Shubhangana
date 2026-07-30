@@ -15,12 +15,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    // Map Reg No or Admin ID to a internal email format for Firebase Auth
-    // e.g., 21BCE100 -> 21bce100@student.campus.com
-    // e.g., ADM01 -> adm01@admin.campus.com
+
     const formattedEmail = role === 'student'
-      ? `${identifier.trim().toLowerCase()}@student.campus.com`
-      : `${identifier.trim().toLowerCase()}@admin.campus.com`;
+      ? `${identifier.trim().toLowerCase()}@student.vitbhopal.ac.in`
+      : `${identifier.trim().toLowerCase()}@admin.vitbhopal.ac.in`;
 
     try {
       await signInWithEmailAndPassword(auth, formattedEmail, password);
