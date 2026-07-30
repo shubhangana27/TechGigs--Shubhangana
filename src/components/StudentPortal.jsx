@@ -3,7 +3,7 @@ import { db } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import './StudentPortal.css';
 
-const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93'; // Replace with your actual ImgBB API key
+const IMGBB_API_KEY = 'ed03a0331775e65e02bce77426567b93';
 
 const CATEGORY_SLA = {
   Electricity: 12,
@@ -25,20 +25,24 @@ export default function StudentPortal({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [tickets, setTickets] = useState([]);
 
+  // Modal / Prediction Confirmation State
+  const [showPredictionModal, setShowPredictionModal] = useState(false);
+  const [predictedDetails, setPredictedDetails] = useState(null);
+
   useEffect(() => {
     if (!user) return;
     const q = query(
       collection(db, 'tickets'),
       where('studentRegistration', '==', user.registrationNumber)
     );
-    
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetchedTickets = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
-      // Sort newest submission first for student view
+      // Sort newest submission first
       fetchedTickets.sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
         const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
@@ -70,14 +74,38 @@ export default function StudentPortal({ user, onLogout }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  // Pre-calculate resolution prediction and show Modal popup
+  const handlePreSubmit = (e) => {
     e.preventDefault();
     if (!gender || !hostelBlock || !wing || !roomNumber || !category || !description) {
       alert('Please fill out all required fields.');
       return;
     }
 
+    const slaHours = CATEGORY_SLA[category] || 24;
+    const dueDate = new Date();
+    dueDate.setHours(dueDate.getHours() + slaHours);
+
+    setPredictedDetails({
+      slaHours,
+      dueDate,
+      formattedDate: dueDate.toLocaleDateString(undefined, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }),
+      formattedTime: dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+
+    setShowPredictionModal(true);
+  };
+
+  // Submit to Firestore after user accepts the predicted timing
+  const confirmAndSubmitTicket = async () => {
+    setShowPredictionModal(false);
     setLoading(true);
+
     try {
       let photoUrl = '';
 
@@ -86,9 +114,6 @@ export default function StudentPortal({ user, onLogout }) {
       }
 
       const ticketId = `TICK-${Math.floor(100000 + Math.random() * 900000)}`;
-      const slaHours = CATEGORY_SLA[category] || 24;
-      const dueDate = new Date();
-      dueDate.setHours(dueDate.getHours() + slaHours);
 
       await addDoc(collection(db, 'tickets'), {
         ticketId,
@@ -103,14 +128,15 @@ export default function StudentPortal({ user, onLogout }) {
         description,
         photoUrl,
         status: 'Unresolved',
-        slaHours,
-        dueDate: dueDate.toISOString(),
+        slaHours: predictedDetails.slaHours,
+        dueDate: predictedDetails.dueDate.toISOString(),
         isEscalated: false,
         createdAt: serverTimestamp()
       });
 
       alert(`Grievance submitted successfully! Ticket ID: ${ticketId}`);
-      
+
+      // Clear Form Fields
       setGender('');
       setHostelBlock('');
       setWing('');
@@ -118,6 +144,7 @@ export default function StudentPortal({ user, onLogout }) {
       setCategory('');
       setDescription('');
       setFile(null);
+      setPredictedDetails(null);
       setActiveTab('history');
     } catch (err) {
       console.error("Submission Error:", err);
@@ -144,7 +171,6 @@ export default function StudentPortal({ user, onLogout }) {
     return <span className="badge badge-warning">⏱️ Expected in {hours}h {mins}m</span>;
   };
 
-  // Helper to format date and time nicely
   const formatDateTime = (timestamp) => {
     if (!timestamp?.toDate) return 'Just now';
     const dateObj = timestamp.toDate();
@@ -181,7 +207,7 @@ export default function StudentPortal({ user, onLogout }) {
       {activeTab === 'new' ? (
         <div className="card form-card">
           <h3>Raise a New Maintenance Request</h3>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handlePreSubmit}>
             
             <div className="form-grid">
               <div className="form-group">
@@ -270,7 +296,7 @@ export default function StudentPortal({ user, onLogout }) {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Uploading & Submitting...' : 'Submit Complaint'}
+              {loading ? 'Processing...' : 'Submit Complaint'}
             </button>
           </form>
         </div>
@@ -304,6 +330,61 @@ export default function StudentPortal({ user, onLogout }) {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Prediction & Acceptance Modal */}
+      {showPredictionModal && predictedDetails && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3>🗓️ Service Schedule Estimate</h3>
+            </div>
+
+            <p className="modal-subtext">
+              Based on your selection of <strong>{category}</strong>, here is the predicted timeline for resolution:
+            </p>
+
+            <div className="prediction-box">
+              <div className="detail-row">
+                <span>Category SLA:</span>
+                <strong>{predictedDetails.slaHours} Hours</strong>
+              </div>
+              <div className="detail-row">
+                <span>Expected Completion Date:</span>
+                <strong>{predictedDetails.formattedDate}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Estimated Time:</span>
+                <strong>{predictedDetails.formattedTime}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Location:</span>
+                <span>{hostelBlock}, Wing {wing}, Room {roomNumber}</span>
+              </div>
+            </div>
+
+            <p className="modal-disclaimer">
+              Do you accept this estimated time slot for maintenance staff to visit?
+            </p>
+
+            <div className="modal-actions">
+              <button 
+                type="button" 
+                onClick={() => setShowPredictionModal(false)}
+                className="modal-btn-cancel"
+              >
+                Modify / Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={confirmAndSubmitTicket}
+                className="modal-btn-confirm"
+              >
+                Accept & File Ticket
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
