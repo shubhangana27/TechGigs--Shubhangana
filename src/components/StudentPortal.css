@@ -100,7 +100,6 @@ html, body {
   display: flex;
   justify-content: center;
   width: 100%;
-  color:#0000;
 }
 
 .form-card {
@@ -109,11 +108,11 @@ html, body {
 }
 
 .card {
-  background: #000;
+  background: #ffffff;
   padding: 24px 28px;
   border-radius: 12px;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  border: 1px solid #0000;
+  border: 1px solid #e2e8f0;
 }
 
 .card-header {
@@ -138,7 +137,6 @@ html, body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
-  color:#0000;
 }
 
 @media (max-width: 520px) {
@@ -151,14 +149,14 @@ html, body {
   margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  color:#0000;
 }
 
+/* Fixed Label Color to Dark Black/Slate */
 .form-group label {
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 13px;
-  color: #0000;
+  color: #0f172a; /* Dark legible text color */
 }
 
 .form-group select,
@@ -178,7 +176,7 @@ html, body {
 .form-group textarea:focus,
 .form-group input:focus {
   border-color: #2563eb;
-  background-color: #0000;
+  background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
