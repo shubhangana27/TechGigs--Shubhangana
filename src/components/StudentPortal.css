@@ -151,12 +151,12 @@ html, body {
   flex-direction: column;
 }
 
-/* Fixed Label Color to Dark Black/Slate */
 .form-group label {
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 13px;
-  color: #0f172a; /* Dark legible text color */
+  color: #000000 !important; 
+  text-shadow: none !important; 
 }
 
 .form-group select,
