@@ -5,8 +5,7 @@ export async function evaluateTicketUrgency(category, description) {
     console.warn('REACT_APP_GEMINI_API_KEY is missing!');
     return {
       urgencyScore: 3,
-      urgencyLabel: 'Medium',
-      aiReasoning: 'API Key missing in environment'
+      urgencyLabel: 'Medium'
     };
   }
 
@@ -43,9 +42,9 @@ STRICT EVALUATION RULES:
           urgencyLabel: {
             type: "STRING",
             description: "One of: Critical, High, Medium, Low, Very Low"
-          },
+          }
         },
-        required: ["urgencyScore", "urgencyLabel", "aiReasoning"]
+        required: ["urgencyScore", "urgencyLabel"]
       }
     }
   };
@@ -71,8 +70,7 @@ STRICT EVALUATION RULES:
     console.error('Gemini REST API error:', error);
     return {
       urgencyScore: 3,
-      urgencyLabel: 'Medium',
-      aiReasoning: 'Default fallback (AI network request failed)'
+      urgencyLabel: 'Medium'
     };
   }
 }
