@@ -102,6 +102,7 @@ export default function StudentPortal({ user, onLogout }) {
       const dueDate = new Date();
       dueDate.setHours(dueDate.getHours() + slaHours);
 
+      // Clean payload with aiReasoning omitted completely
       await addDoc(collection(db, 'tickets'), {
         ticketId,
         studentName: user.name || 'Student',
@@ -123,8 +124,7 @@ export default function StudentPortal({ user, onLogout }) {
         createdAt: serverTimestamp(),
 
         urgencyScore: aiAssessment.urgencyScore, 
-        urgencyLabel: aiAssessment.urgencyLabel, 
-        aiReasoning: aiAssessment.aiReasoning    
+        urgencyLabel: aiAssessment.urgencyLabel
       });
 
       alert(`Grievance submitted successfully! Sent to Admin. Ticket ID: ${ticketId}`);
@@ -211,7 +211,6 @@ export default function StudentPortal({ user, onLogout }) {
 
   return (
     <div className="portal-container">
-     
       <header className="portal-header">
         <div className="header-titles">
           <h1>Student Portal</h1>
