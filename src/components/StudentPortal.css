@@ -109,11 +109,11 @@ html, body {
 }
 
 .card {
-  background: #ffffff;
+  background: #000;
   padding: 24px 28px;
   border-radius: 12px;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #0000;
 }
 
 .card-header {
