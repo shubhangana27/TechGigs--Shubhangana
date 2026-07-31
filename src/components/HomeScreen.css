@@ -157,28 +157,25 @@
   text-align: left;
 }
 
-/* Pure White & High Contrast Form Labels */
-.form-group label {
+.home-container .form-group label {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #ffffff !important;
+  color: #ffffff; 
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-/* Input Fields - Dark slate text inside white box */
 .form-group input {
   padding: 0.8rem 1rem;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
-  color: #0f172a; /* Dark text so typed input is easily readable inside white boxes */
+  color: #0f172a; 
   background-color: #ffffff;
   outline: none;
   transition: all 0.25s ease;
 }
 
-/* Placeholder text styling inside input */
 .form-group input::placeholder {
   color: #64748b;
 }

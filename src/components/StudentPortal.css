@@ -151,12 +151,12 @@ html, body {
   flex-direction: column;
 }
 
-.form-group label {
+.portal-container .form-group label {
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 13px;
-  color: #000000 !important; 
-  text-shadow: none !important; 
+  color: #0f172a; 
+  text-shadow: none;
 }
 
 .form-group select,
